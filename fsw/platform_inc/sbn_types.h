@@ -1,23 +1,21 @@
-/******************************************************************************
-** File: sbn_types.h
-**
-**      Copyright (c) 2004-2016, United States government as represented by the
-**      administrator of the National Aeronautics Space Administration.
-**      All rights reserved. This software(cFE) was created at NASA's Goddard
-**      Space Flight Center pursuant to government contracts.
-**
-**      This software may be used only pursuant to a United States government
-**      sponsored project and the United States government may not be charged
-**      for use thereof.
-**
-** Purpose:
-**      This header file contains prototypes for private functions and type
-**      definitions for the Software Bus Network Application.
-**
-** Authors:   J. Wilmot/GSFC Code582
-**            R. McGraw/SSI
-**            C. Knight/ARC Code TI
-******************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "cfe.h"
 
 #ifndef _sbn_types_h_
@@ -103,16 +101,14 @@ typedef uint8             SBN_NetIdx_t;
 typedef uint16            SBN_PeerIdx_t;
 typedef uint32            CFE_ProcessorID_t;
 typedef uint32            CFE_SpacecraftID_t;
-typedef uint32            OS_TaskID_t;
-typedef uint32            OS_MutexID_t;
+typedef osal_id_t         OS_MutexID_t;
 typedef int32             OS_SocketPort_t;
-typedef uint32            OS_SocketID_t;
+typedef osal_id_t         OS_SocketID_t;
 typedef int32             OS_FileDes_t;
-typedef uint32            OS_SockFileDes_t;
+typedef osal_id_t         OS_SockFileDes_t;
 typedef int32             OS_SelectTimeout_t;
 typedef int32             OS_Status_t;
-typedef uint32            CFE_ES_AppID_t;
-typedef uint32            CFE_ES_ObjectID_t;
+typedef osal_id_t         CFE_ES_ObjectID_t;
 typedef CFE_ES_ObjectID_t CFE_ES_ModuleID_t;
 typedef CFE_ES_ObjectID_t CFE_ES_MutexID_t;
 typedef uint16            CFE_EVS_EventID_t;

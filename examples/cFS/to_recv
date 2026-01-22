@@ -8,7 +8,7 @@ sock.bind(("127.0.0.1", 1235))
 class FibTlm:
     structstr = '>H'
     structstrsz = struct.calcsize(structstr)
-    
+
     def __init__(self, data):
         (Fib,) = struct.unpack(self.structstr, data[0:self.structstrsz])
 

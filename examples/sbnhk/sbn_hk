@@ -5,8 +5,8 @@ ENDIAN=little
 SBN_MID=0x18FA
 
 SBN_NOOP_CC=0
-SBN_RESET_CC=1
-SBN_RESET_PEER_CC=2
+SBN_HK_RESET_CC=1
+SBN_HK_RESET_PEER_CC=2
 
 SBN_HK_CC=10
 SBN_HK_NET_CC=11
@@ -19,7 +19,7 @@ echo 'sending NOOP command'
 echo -n 'press return to continue: '
 read a
 
-#./cisend --mid=$SBN_MID --cc=$SBN_RESET_CC --ccendian=$ENDIAN < /dev/null
+#./cisend --mid=$SBN_MID --cc=$SBN_HK_RESET_CC --ccendian=$ENDIAN < /dev/null
 
 echo 'sending HK command'
 ./cisend --mid=$SBN_MID --cc=$SBN_HK_CC --ccendian=$ENDIAN < /dev/null

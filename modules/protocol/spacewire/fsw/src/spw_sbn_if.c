@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "spw_sbn_if_struct.h"
 #include "spw_sbn_if_struct.h"
 #include "spw_sbn_if.h"
@@ -54,7 +72,7 @@ int SPW_GetStatus(SPW_SBNEntry_t spwEntry, char *statusName)
  * Attempts to copy the data in the SpaceWire character device to the provided buffer
  *
  * @param spwEntry Entry associated with this SpaceWire interface
- * @param ProtoMsgBuf Pointer to the target data buffer
+ * @param dataBuffer Pointer to the target data buffer
  * @param dataSz Size of the data buffer in bytes
  * @param error Pointer to store error status from the copy operation
  * @return dataRead Size in bytes of the copied data if successful, -1 if unsuccessful
@@ -94,7 +112,7 @@ int SPW_GetData(SPW_SBNEntry_t spwEntry, void *dataBuffer, int dataSz, int *erro
  * Attempts to copy the data from the provided buffer to the SpaceWire character device
  *
  * @param spwEntry Entry associated with this SpaceWire interface
- * @param ProtoMsgBuf Pointer to the target data buffer
+ * @param dataBuffer Pointer to the target data buffer
  * @param dataSz Size of the data buffer in bytes
  * @param error Pointer to store error status from the copy operation
  * @return dataRead Size in bytes of the copied data if successful, -1 if unsuccessful
@@ -183,179 +201,182 @@ int SBN_SPWRcvMsg(SBN_InterfaceData *Peer, NetDataUnion *DataMsgBuf)
     if (dataRead <= 0)
     { /* Positive number indicates byte length of message */
         return SBN_IF_EMPTY;
-        else return dataRead;
+    }
+    else
+        return dataRead;
+}
+
+/**
+ * Parses the peer data file into SBN_FileEntry_t structures.
+ * Parses information that is common to all interface types and
+ * allows individual interface modules to parse out interface-
+ * specfic information.
+ *
+ * @param FileEntry  Interface description line as read from file
+ * @param LineNum    The line number in the peer file
+ * @param EntryAddr  Address in which to return the filled entry struct
+ * @return SBN_OK if entry is parsed correctly, SBN_ERROR otherwise
+ */
+int32 SBN_ParseSPWFileEntry(char *FileEntry, uint32 LineNum, void **EntryAddr)
+{
+    int  ScanfStatus;
+    char ProtoDev[SBN_SPW_MAX_CHAR_NAME];
+    char DevInstance[SBN_SPW_MAX_CHAR_NAME];
+    int  DataPort;
+
+    /*
+    ** Using sscanf to parse the string.
+    ** Currently no error handling
+    */
+    ScanfStatus                            = sscanf(FileEntry, "%s %s", &ProtoDev, &DevInstance);
+    ProtoDev[SBN_SPW_MAX_CHAR_NAME - 1]    = '\0';
+    DevInstance[SBN_SPW_MAX_CHAR_NAME - 1] = '\0';
+
+    /*
+    ** Check to see if the correct number of items were parsed
+    */
+    if (ScanfStatus != SBN_SPW_ITEMS_PER_FILE_LINE)
+    {
+        CFE_EVS_SendEvent(SBN_INV_LINE_EID, CFE_EVS_ERROR, "%s:Invalid SBN peer file line,exp %d items,found %d",
+                          CFE_CPU_NAME, SBN_SPW_ITEMS_PER_FILE_LINE, ScanfStatus);
+        return SBN_ERROR;
     }
 
-    /**
-     * Parses the peer data file into SBN_FileEntry_t structures.
-     * Parses information that is common to all interface types and
-     * allows individual interface modules to parse out interface-
-     * specfic information.
-     *
-     * @param FileEntry  Interface description line as read from file
-     * @param LineNum    The line number in the peer file
-     * @param EntryAddr  Address in which to return the filled entry struct
-     * @return SBN_OK if entry is parsed correctly, SBN_ERROR otherwise
-     */
-    int32 SBN_ParseSPWFileEntry(char *FileEntry, uint32 LineNum, void **EntryAddr)
+    SPW_SBNEntry_t *entry = malloc(sizeof(SPW_SBNEntry_t));
+    *EntryAddr            = entry;
+
+    strncpy(entry->ProtoDev, &ProtoDev, SBN_SPW_MAX_CHAR_NAME);
+    strncpy(entry->DevInstance, &DevInstance, SBN_SPW_MAX_CHAR_NAME);
+    entry->ProtoDev = ProtoDev;
+
+    return SBN_OK;
+}
+
+/**
+ * Initializes an SPW host or peer data struct depending on the
+ * CPU name.
+ *
+ * @param  Data SPW interface information
+ * @return SBN_OK on success, error code otherwise
+ */
+int32 SBN_InitSPWIF(SBN_InterfaceData * Data)
+{
+    int32           Stat;
+    SPW_SBNEntry_t *entry = Data->EntryData;
+    /* CPU names match - this is host data.
+       Create msg interface when we find entry matching its own name
+       because the self entry has port info needed to bind this interface. */
+    if (strncmp(Data->Name, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH) == 0)
     {
-        int  ScanfStatus;
-        char ProtoDev[SBN_SPW_MAX_CHAR_NAME];
-        char DevInstance[SBN_SPW_MAX_CHAR_NAME];
-        int  DataPort;
-
-        /*
-        ** Using sscanf to parse the string.
-        ** Currently no error handling
-        */
-        ScanfStatus                            = sscanf(FileEntry, "%s %s", &ProtoDev, &DevInstance);
-        ProtoDev[SBN_SPW_MAX_CHAR_NAME - 1]    = '\0';
-        DevInstance[SBN_SPW_MAX_CHAR_NAME - 1] = '\0';
-
-        /*
-        ** Check to see if the correct number of items were parsed
-        */
-        if (ScanfStatus != SBN_SPW_ITEMS_PER_FILE_LINE)
-        {
-            CFE_EVS_SendEvent(SBN_INV_LINE_EID, CFE_EVS_ERROR, "%s:Invalid SBN peer file line,exp %d items,found %d",
-                              CFE_CPU_NAME, SBN_SPW_ITEMS_PER_FILE_LINE, ScanfStatus);
-            return SBN_ERROR;
-        }
-
-        SPW_SBNEntry_t *entry = malloc(sizeof(SPW_SBNEntry_t));
-        *EntryAddr            = entry;
-
-        strncpy(entry->ProtoDev, &ProtoDev, SBN_SPW_MAX_CHAR_NAME);
-        strncpy(entry->DevInstance, &DevInstance, SBN_SPW_MAX_CHAR_NAME);
-        entry->ProtoDev = ProtoDev;
-
-        return SBN_OK;
+        /* create, fill, and store SPW-specific host data structure */
+        SPW_SBNHostData_t *host = malloc(sizeof(SPW_SBNHostData_t));
+        host->spwEntry          = entry;
+        Data->HostData          = host;
+        return SBN_HOST;
     }
-
-    /**
-     * Initializes an SPW host or peer data struct depending on the
-     * CPU name.
-     *
-     * @param  Interface data structure containing the file entry
-     * @return SBN_OK on success, error code otherwise
-     */
-    int32 SBN_InitSPWIF(SBN_InterfaceData * Data)
+    /* CPU names do not match - this is peer data. */
+    else
     {
-        int32           Stat;
-        SPW_SBNEntry_t *entry = Data->EntryData;
-        /* CPU names match - this is host data.
-           Create msg interface when we find entry matching its own name
-           because the self entry has port info needed to bind this interface. */
-        if (strncmp(Data->Name, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH) == 0)
-        {
-            /* create, fill, and store SPW-specific host data structure */
-            SPW_SBNHostData_t *host = malloc(sizeof(SPW_SBNHostData_t));
-            host->spwEntry          = entry;
-            Data->HostData          = host;
-            return SBN_HOST;
-        }
-        /* CPU names do not match - this is peer data. */
-        else
-        {
-            /* create, fill, and store an IPv4-specific host data structure */
-            SPW_SBNPeerData_t *peer = malloc(sizeof(SPW_SBNPeerData_t));
-            peer->spwEntry          = spwEntry;
-            Data->PeerData          = peer;
-            return SBN_PEER;
-        }
+        /* create, fill, and store an IPv4-specific host data structure */
+        SPW_SBNPeerData_t *peer = malloc(sizeof(SPW_SBNPeerData_t));
+        peer->spwEntry          = spwEntry;
+        Data->PeerData          = peer;
+        return SBN_PEER;
     }
+}
 
-    /**
-     * Sends a message to a peer over a SPW interface.
-     *
-     * @param MsgType      Type of Message
-     * @param MsgSz        Size of Message
-     * @param HostList     The array of SBN_InterfaceData structs that describes the host
-     * @param SenderPtr    Sender information
-     * @param IfData       The SBN_InterfaceData struct describing this peer
-     * @param ProtoMsgBuf  Protocol message
-     * @param DataMsgBuf   Data message
-     */
-    int32 SBN_SendSPWNetMsg(uint32 MsgType, uint32 MsgSz, SBN_InterfaceData * HostList[], int32 NumHosts,
-                            CFE_SB_SenderId_t * SenderPtr, SBN_InterfaceData * IfData, SBN_NetProtoMsg_t * ProtoMsgBuf,
-                            NetDataUnion * DataMsgBuf)
+/**
+ * Sends a message to a peer over a SPW interface.
+ *
+ * @param MsgType      Type of Message
+ * @param MsgSz        Size of Message
+ * @param HostList     The array of SBN_InterfaceData structs that describes the host
+ * @param NumHosts     Number of elements of HostList
+ * @param SenderPtr    Sender information
+ * @param IfData       The SBN_InterfaceData struct describing this peer
+ * @param ProtoMsgBuf  Protocol message
+ * @param DataMsgBuf   Data message
+ */
+int32 SBN_SendSPWNetMsg(uint32 MsgType, uint32 MsgSz, SBN_InterfaceData * HostList[], int32 NumHosts,
+                        CFE_SB_SenderId_t * SenderPtr, SBN_InterfaceData * IfData, SBN_NetProtoMsg_t * ProtoMsgBuf,
+                        NetDataUnion * DataMsgBuf)
+{
+    int                status, found = 0;
+    SPW_SBNPeerData_t *peer;
+    SPW_SBNHostData_t *host;
+    uint32             HostIdx;
+
+    peer = IfData->PeerData;
+
+    switch (MsgType)
     {
-        int                status, found = 0;
-        SPW_SBNPeerData_t *peer;
-        SPW_SBNHostData_t *host;
-        uint32             HostIdx;
-
-        peer = IfData->PeerData;
-
-        switch (MsgType)
-        {
-            case SBN_APP_MSG: /* If my peer sent this message, don't send it back to them, avoids loops */
-                if (CFE_PSP_GetProcessorId() != SenderPtr->ProcessorId)
-                    break;
-                /* Then no break, so fill in the sender application information */
-                strncpy((char *)&(DataMsgBuf->Hdr.MsgSender.AppName), &SenderPtr->AppName[0], OS_MAX_API_NAME);
-                DataMsgBuf->Hdr.MsgSender.ProcessorId = SenderPtr->ProcessorId;
-            case SBN_SUBSCRIBE_MSG:
-            case SBN_UN_SUBSCRIBE_MSG:
-
-                /* Initialize the SBN hdr of the outgoing network message */
-                strncpy((char *)&DataMsgBuf->Hdr.SrcCpuName, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH);
-
-                DataMsgBuf->Hdr.Type = MsgType;
-                status               = SPW_SendData(peer->spwEntry, (*void)ProtoMsgBuf, MsgSz, &error);
-
+        case SBN_APP_MSG: /* If my peer sent this message, don't send it back to them, avoids loops */
+            if (CFE_PSP_GetProcessorId() != SenderPtr->ProcessorId)
                 break;
+            /* Then no break, so fill in the sender application information */
+            strncpy((char *)&(DataMsgBuf->Hdr.MsgSender.AppName), &SenderPtr->AppName[0], OS_MAX_API_NAME);
+            DataMsgBuf->Hdr.MsgSender.ProcessorId = SenderPtr->ProcessorId;
+        case SBN_SUBSCRIBE_MSG:
+        case SBN_UN_SUBSCRIBE_MSG:
 
-            case SBN_ANNOUNCE_MSG:
-            case SBN_ANNOUNCE_ACK_MSG:
-            case SBN_HEARTBEAT_MSG:
-            case SBN_HEARTBEAT_ACK_MSG:
+            /* Initialize the SBN hdr of the outgoing network message */
+            strncpy((char *)&DataMsgBuf->Hdr.SrcCpuName, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH);
 
-                ProtoMsgBuf->Hdr.Type = MsgType;
-                strncpy(ProtoMsgBuf->Hdr.SrcCpuName, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH);
+            DataMsgBuf->Hdr.Type = MsgType;
+            status               = SPW_SendData(peer->spwEntry, (*void)ProtoMsgBuf, MsgSz, &error);
 
-                status = SPW_SendData(peer->spwEntry, (*void)ProtoMsgBuf, MsgSz, &error);
-                break;
+            break;
 
-            default:
-                OS_printf("Unexpected msg type\n");
-                /* send event to indicate unexpected msgtype */
-                status = (-1);
-                break;
-        } /* end switch */
+        case SBN_ANNOUNCE_MSG:
+        case SBN_ANNOUNCE_ACK_MSG:
+        case SBN_HEARTBEAT_MSG:
+        case SBN_HEARTBEAT_ACK_MSG:
 
-        return (status);
-    } /* end SBN_SendNetMsg */
+            ProtoMsgBuf->Hdr.Type = MsgType;
+            strncpy(ProtoMsgBuf->Hdr.SrcCpuName, CFE_CPU_NAME, SBN_MAX_PEERNAME_LENGTH);
 
-    int32 SPW_VerifyPeerInterface(SBN_InterfaceData * Peer, SBN_InterfaceData * HostList[], int32 NumHosts)
+            status = SPW_SendData(peer->spwEntry, (*void)ProtoMsgBuf, MsgSz, &error);
+            break;
+
+        default:
+            OS_printf("Unexpected msg type\n");
+            /* send event to indicate unexpected msgtype */
+            status = (-1);
+            break;
+    } /* end switch */
+
+    return (status);
+} /* end SBN_SendNetMsg */
+
+int32 SPW_VerifyPeerInterface(SBN_InterfaceData * Peer, SBN_InterfaceData * HostList[], int32 NumHosts)
+{
+    int32 HostIdx;
+    int32 found;
+
+    /* Find the host that goes with this peer.  There should only be one
+       ethernet host */
+    for (HostIdx = 0; HostIdx < NumHosts; HostIdx++)
     {
-        int32 HostIdx;
-        int32 found;
-
-        /* Find the host that goes with this peer.  There should only be one
-           ethernet host */
-        for (HostIdx = 0; HostIdx < NumHosts; HostIdx++)
+        if (HostList[HostIdx]->ProtocolId == SBN_SPW)
         {
-            if (HostList[HostIdx]->ProtocolId == SBN_SPW)
-            {
-                found = 1;
-                break;
-            }
-        }
-        if (found == 1)
-        {
-            return SBN_VALID;
-        }
-        else
-        {
-            return SBN_NOT_VALID;
+            found = 1;
+            break;
         }
     }
-
-    /**
-     * An SPW host doesn't necessarily need a peer, so this always returns true.
-     */
-    int32 SPW_VerifyHostInterface(SBN_InterfaceData * Host, SBN_PeerData_t * PeerList, int32 NumPeers)
+    if (found == 1)
     {
         return SBN_VALID;
     }
+    else
+    {
+        return SBN_NOT_VALID;
+    }
+}
+
+/**
+ * An SPW host doesn't necessarily need a peer, so this always returns true.
+ */
+int32 SPW_VerifyHostInterface(SBN_InterfaceData * Host, SBN_PeerData_t * PeerList, int32 NumPeers)
+{
+    return SBN_VALID;
+}

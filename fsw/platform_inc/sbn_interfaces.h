@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #ifndef _sbn_interfaces_h_
 #define _sbn_interfaces_h_
 
@@ -44,8 +62,8 @@ typedef struct
     /**
      * Initializes the filter module.
      *
-     * @param FilterVersion[in] The version # of the filter API.
-     * @param BaseEID[in] The start of the Event ID's for this module.
+     * @param[in] FilterVersion The version # of the filter API.
+     * @param[in] BaseEID The start of the Event ID's for this module.
      *
      * @return CFE_SUCCESS on successful initialization, otherwise error specific to failure.
      */
@@ -55,8 +73,8 @@ typedef struct
      * Interface is called to apply a filter algorithm on an SB (CCSDS) message
      * header and body.
      *
-     * @param MsgBuf[inout] The message buffer to alter in-place.
-     * @param Context[in] The context information for this message (particularly peer info.)
+     * @param[inout] MsgBuf The message buffer to alter in-place.
+     * @param[in] Context The context information for this message (particularly peer info.)
      *
      * @return SBN_SUCCESS when the filter feels it processed the message successfully
      *         (this doesn't necessarily mean the message was altered.)
@@ -69,8 +87,8 @@ typedef struct
      * Interface is called to apply a filter algorithm on an SB (CCSDS) message
      * header and body.
      *
-     * @param MsgBuf[inout] The message buffer to alter in-place.
-     * @param Context[in] The context information for this message (particularly peer info.)
+     * @param[inout] MsgBuf The message buffer to alter in-place.
+     * @param[in] Context The context information for this message (particularly peer info.)
      *
      * @return SBN_SUCCESS when the filter feels it processed the message successfully
      *         (this doesn't necessarily mean the message was altered.)
@@ -83,9 +101,9 @@ typedef struct
      * Some filter interfaces may alter the message ID of the messages it processes.
      * SBN needs to know this when it relays subscription information to peers.
      *
-     * @param FromToMidPtr[inout] A pointer to the message id to be altered, and the resulting
+     * @param[inout] FromToMidPtr A pointer to the message id to be altered, and the resulting
      *        message id when it has been altered.
-     * @param Context[in] The context information for this request (particularly peer info.)
+     * @param[in] Context The context information for this request (particularly peer info.)
      *
      * @return SBN_SUCCESS when the function feels it processed the message remapping successfully
      *         (this doesn't necessarily mean the id was altered.)
@@ -112,13 +130,13 @@ struct SBN_PeerInterface_s
      * @brief The ID of the task created to pend on the pipe and send messages
      * to the net as soon as they are read. 0 if there is no send task.
      */
-    OS_TaskID_t SendTaskID;
+    CFE_ES_TaskId_t SendTaskID;
 
     /**
      * @brief The ID of the task created to pend on the net and send messages
      * to the software bus as soon as they are read. 0 if there is no recv task.
      */
-    OS_TaskID_t RecvTaskID; /* for mesh nets */
+    CFE_ES_TaskId_t RecvTaskID; /* for mesh nets */
 
     /** @brief The pipe ID used to read messages destined for the peer. */
     CFE_SB_PipeId_t Pipe;
@@ -161,10 +179,10 @@ struct SBN_NetInterface_s
      * to communicate to peers. These tasks are used for those networks. ID's
      * are 0 if there is no task.
      */
-    OS_TaskID_t  SendTaskID;
-    OS_MutexID_t SendMutex;
+    CFE_ES_TaskId_t SendTaskID;
+    OS_MutexID_t    SendMutex;
 
-    OS_TaskID_t RecvTaskID;
+    CFE_ES_TaskId_t RecvTaskID;
 
     SBN_IfOps_t *IfOps; /* convenience */
 
@@ -195,13 +213,13 @@ typedef struct
     /**
      * @brief Used by modules to pack messages to send.
      *
-     * @param SBNMsgBuf[out] The buffer pointer to receive the packed message.
+     * @param[out] SBNMsgBuf The buffer pointer to receive the packed message.
      *                       Should be MsgSz + SBN_PACKED_HDR_SZ bytes or larger.
-     * @param MsgSz[in] The size of the Msg parameter.
-     * @param MsgType[in] The type of the Msg (app, sub/unsub, heartbeat, announce).
-     * @param ProcessorID[in] The Processor ID of the sender (should be CFE_CPU_ID)
-     * @param SpacecraftID[in] The Spacecraft ID of the sender
-     * @param Msg[in] The SBN message payload (CCSDS message, sub/unsub)
+     * @param[in] MsgSz The size of the Msg parameter.
+     * @param[in] MsgType The type of the Msg (app, sub/unsub, heartbeat, announce).
+     * @param[in] ProcessorID The Processor ID of the sender (should be CFE_CPU_ID)
+     * @param[in] SpacecraftID The Spacecraft ID of the sender
+     * @param[in] Msg The SBN message payload (CCSDS message, sub/unsub)
      *
      * @sa UnpackMsg
      */
@@ -211,12 +229,12 @@ typedef struct
     /**
      * @brief Used by modules to unpack messages received.
      *
-     * @param SBNMsgBuf[in] The buffer pointer containing the SBN message.
-     * @param MsgSzPtr[out] The size of the Msg parameter.
-     * @param MsgTypePtr[out] The type of the Msg (app, sub/unsub, heartbeat, announce).
-     * @param ProcessorIDPtr[out] The Processor ID of the sender (should be CFE_CPU_ID)
-     * @param SpacecraftIDPtr[out] The Spacecraft ID of the sender
-     * @param Msg[out] The SBN message payload (CCSDS message, sub/unsub, ensure it is at least
+     * @param[in] SBNMsgBuf The buffer pointer containing the SBN message.
+     * @param[out] MsgSzPtr The size of the Msg parameter.
+     * @param[out] MsgTypePtr The type of the Msg (app, sub/unsub, heartbeat, announce).
+     * @param[out] ProcessorIDPtr The Processor ID of the sender (should be CFE_CPU_ID)
+     * @param[out] SpacecraftIDPtr The Spacecraft ID of the sender
+     * @param[out] Msg The SBN message payload (CCSDS message, sub/unsub, ensure it is at least
      * CFE_MISSION_SB_MAX_SB_MSG_SIZE)
      * @return TRUE if we were unable to unpack/verify the message.
      *
@@ -229,7 +247,7 @@ typedef struct
      * Called by backend modules to signal that the connection has been
      * established and that the initial handshake should ensue.
      *
-     * @param Peer[in]      The peer to mark as disconnected.
+     * @param[in] Peer      The peer to mark as disconnected.
      *
      * @return SBN_SUCCESS on successfully marking the peer connected, otherwise SBN_ERROR.
      */
@@ -238,7 +256,7 @@ typedef struct
     /**
      * Called by backend modules to signal that the connection has been lost.
      *
-     * @param Peer[in]      The peer to mark as disconnected.
+     * @param[in] Peer      The peer to mark as disconnected.
      *
      * @return SBN_SUCCESS on successfully marking the peer disconnected, otherwise SBN_ERROR.
      */
@@ -248,10 +266,10 @@ typedef struct
      * Used by modules to send protocol-specific messages (which will loop through SBN and come back to the
      * module's send endpoint, particularly UDP which needs to send announcement/heartbeat msgs.)
      *
-     * @param MsgType[in]   The type of SBN message to send.
-     * @param MsgSz[in]     The size of the message payload.
-     * @param Msg[in]       The payload.
-     * @param Peer[in]      The peer to send the message to.
+     * @param[in] MsgType   The type of SBN message to send.
+     * @param[in] MsgSz     The size of the message payload.
+     * @param[in] Msg       The payload.
+     * @param[in] Peer      The peer to send the message to.
      *
      * @return SBN_SUCCESS when message successfully sent, otherwise SBN_ERROR
      */
@@ -260,9 +278,9 @@ typedef struct
     /**
      * @brief For a given network and processor ID, get the peer interface.
      *
-     * @param Net[in] The network to check.
-     * @param ProcessorID[in] The processor of the peer.
-     * @param SpacecraftID[in] The spacecraft of the peer.
+     * @param[in] Net The network to check.
+     * @param[in] ProcessorID The processor of the peer.
+     * @param[in] SpacecraftID The spacecraft of the peer.
      *
      * @return A pointer to the peer interface structure.
      */
@@ -279,9 +297,9 @@ struct SBN_IfOps_s
     /**
      * Initializes the protocol module.
      *
-     * @param FilterVersion[in] The version # of the protocol API.
-     * @param BaseEID[in] The start of the Event ID's for this module.
-     * @param Outlet[in] The SBN functions provided to protocol modules.
+     * @param[in] FilterVersion The version # of the protocol API.
+     * @param[in] BaseEID The start of the Event ID's for this module.
+     * @param[in] Outlet The SBN functions provided to protocol modules.
      *
      * @return SBN_SUCCESS on successful initialization, otherwise SBN_ERROR.
      */
@@ -290,7 +308,7 @@ struct SBN_IfOps_s
     /**
      * Initializes the host interface.
      *
-     * @param Net[in,out] Struct pointer describing a single interface
+     * @param[in,out] Net Struct pointer describing a single interface
      * @return SBN_SUCCESS on successful initialization
      *         SBN_ERROR otherwise
      */
@@ -299,7 +317,7 @@ struct SBN_IfOps_s
     /**
      * Initializes the peer interface.
      *
-     * @param Peer[in,out] The peer interface to initialize
+     * @param[in,out] Peer The peer interface to initialize
      * @return SBN_SUCCESS on successful initialization
      *         SBN_ERROR otherwise
      */
@@ -309,8 +327,8 @@ struct SBN_IfOps_s
      * Configures the network interface with the address (a string whose format is defined by
      * the protocol module. For example, UDP uses "hostname:port".
      *
-     * @param Net[in] The initialized network interface.
-     * @param Address[in] The protocol-specific address.
+     * @param[in] Net The initialized network interface.
+     * @param[in] Address The protocol-specific address.
      *
      * @return SBN_SUCCESS on successful loading.
      */
@@ -320,8 +338,8 @@ struct SBN_IfOps_s
      * Configures the peer interface with the address (a string whose format is defined by
      * the protocol module. For example, TCP uses "hostname:port", serial uses device path.
      *
-     * @param Peer[in] The initialized peer interface.
-     * @param Address[in] The protocol-specific address.
+     * @param[in] Peer The initialized peer interface.
+     * @param[in] Address The protocol-specific address.
      *
      * @return SBN_SUCCESS on successful loading.
      */
@@ -332,7 +350,7 @@ struct SBN_IfOps_s
      * after a timeout period. This is for (re)establishing connections
      * and handshaking subscriptions.
      *
-     * @param Peer[in] The peer to poll.
+     * @param[in] Peer The peer to poll.
      *
      * @return SBN_SUCCESS on successful polling, SBN_ERROR otherwise.
      */
@@ -345,11 +363,11 @@ struct SBN_IfOps_s
      * un/subscriptions and app messages.  The protocol message buffer is used
      * for announce and heartbeat messages/acks.
      *
-     * @param Net[in] Interface data for the network where this peer lives.
-     * @param Peer[in] Interface data describing the intended peer recipient.
-     * @param MsgType[in] The SBN message type.
-     * @param MsgSz[in] The size of the SBN message payload.
-     * @param Payload[in] The SBN message payload.
+     * @param[in] Net Interface data for the network where this peer lives.
+     * @param[in] Peer Interface data describing the intended peer recipient.
+     * @param[in] MsgType The SBN message type.
+     * @param[in] MsgSz The size of the SBN message payload.
+     * @param[in] Payload The SBN message payload.
      *
      * @return SBN_SUCCESS when message successfully sent, otherwise SBN_ERROR.
      */
@@ -359,13 +377,13 @@ struct SBN_IfOps_s
      * Receives an individual message from the specified peer. Note, only
      * define this or the RecvFromNet method, not both!
      *
-     * @param Net[in] Interface data for the network where this peer lives.
-     * @param Peer[in] Interface data describing the intended peer recipient.
-     * @param MsgTypePtr[out] SBN message type received.
-     * @param MsgSzPtr[out] Payload size received.
-     * @param ProcessorIDPtr[out] ProcessorID of the sender.
-     * @param SpacecraftIDPtr[out] SpacecraftID of the sender.
-     * @param PayloadBuffer[out] Payload buffer
+     * @param[in] Net Interface data for the network where this peer lives.
+     * @param[in] Peer Interface data describing the intended peer recipient.
+     * @param[out] MsgTypePtr SBN message type received.
+     * @param[out] MsgSzPtr Payload size received.
+     * @param[out] ProcessorIDPtr ProcessorID of the sender.
+     * @param[out] SpacecraftIDPtr SpacecraftID of the sender.
+     * @param[out] PayloadBuffer Payload buffer
      *                      (pass in a buffer of CFE_MISSION_SB_MAX_SB_MSG_SIZE)
      *
      * @return SBN_SUCCESS on success, SBN_ERROR on failure
@@ -376,12 +394,12 @@ struct SBN_IfOps_s
     /**
      * Receives an individual message from the network.
      *
-     * @param Net[in] Interface data for the network where this peer lives.
-     * @param MsgTypePtr[out] SBN message type received.
-     * @param MsgSzPtr[out] Payload size received.
-     * @param ProcessorIDPtr[out] ProcessorID of the sender.
-     * @param SpacecraftIDPtr[out] SpacecraftID of the sender.
-     * @param PayloadBuffer[out] Payload buffer
+     * @param[in] Net Interface data for the network where this peer lives.
+     * @param[out] MsgTypePtr SBN message type received.
+     * @param[out] MsgSzPtr Payload size received.
+     * @param[out] ProcessorIDPtr ProcessorID of the sender.
+     * @param[out] SpacecraftIDPtr SpacecraftID of the sender.
+     * @param[out] PayloadBuffer Payload buffer
      *                      (pass in a buffer of CFE_MISSION_SB_MAX_SB_MSG_SIZE)
      *
      * @return SBN_SUCCESS on success, SBN_ERROR on failure
@@ -392,7 +410,7 @@ struct SBN_IfOps_s
     /**
      * Unload a network. This will unload all associated peers as well.
      *
-     * @param Net[in] Network to unload.
+     * @param[in] Net Network to unload.
      *
      * @return  SBN_SUCCESS when the net is unloaded.
      *          SBN_ERROR if the net cannot be unloaded.
@@ -406,7 +424,7 @@ struct SBN_IfOps_s
     /**
      * Unload a peer.
      *
-     * @param Peer[in] Peer to unload.
+     * @param[in] Peer Peer to unload.
      *
      * @return  SBN_SUCCESS when the peer is unloaded.
      *          SBN_ERROR if the peer cannot be unloaded.

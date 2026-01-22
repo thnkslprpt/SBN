@@ -24,7 +24,7 @@
 ** Purpose:
 **   This header file contains the mission configuration parameters and
 **   typedefs with mission scope.
-** 
+**
 ** Notes:
 **   The impact of changing these configurations from their default value is
 **   not yet documented.  Changing these values may impact the performance
@@ -57,7 +57,7 @@
 **
 **  \par Description:
 **      Dictates the message format used by the cFE.
-**   
+**
 **  \par Limits
 **      All versions of the cFE currently support only CCSDS as the message format
 **      Defining MESSAGE_FORMAT_IS_CCSDS_VER_2 implements the APID extended header format
@@ -361,7 +361,7 @@
 **  \par Description:
 **      Message Id base numbers for the cFE messages
 **      These will now differ in format when using CCSDS version 2 as they will no longer
-**      include the Secondary Header Flag and CCSDS version bits. 
+**      include the Secondary Header Flag and CCSDS version bits.
 **
 **      NOTES: cFE MsgIds are the sum of the base numbers and the portable msg
 **             numbers.
@@ -582,7 +582,7 @@
 **
 **       This affects the layout of command/telemetry messages but does not affect run
 **       time behavior or internal allocation.
-**   
+**
 **  \par Limits
 **       All CPUs within the same SB domain (mission) must share the same definition
 **       Note this affects the size of messages, so it must not cause any message
@@ -605,7 +605,7 @@
 **
 **       This affects only the layout of command/telemetry messages and table definitions;
 **       internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
-**   
+**
 **  \par Limits
 **       All CPUs within the same SB domain (mission) and ground tools must share the
 **       same definition.

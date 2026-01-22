@@ -4,9 +4,9 @@ So you'd like to test SBN? Here's some suggestions:
 
 1. Set up at least two targets in the cFS build system (targets.cmake).
 
-    a. Target 1 - "cpu1" with the applist of "ci_lab sbn_app sbn_udp sbn_tcp"
+    a. Target 1 - "cpu1" with the applist of "ci_lab sbn sbn_udp sbn_tcp"
 
-    b. Target 2 - "cpu2" with the applist of "to_lab sbn_app sbn_udp sbn_tcp"
+    b. Target 2 - "cpu2" with the applist of "to_lab sbn sbn_udp sbn_tcp"
 
 2. Configure ES startup scripts:
 

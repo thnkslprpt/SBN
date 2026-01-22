@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -53,20 +71,16 @@ void SBN_InitializeCounters(void)
 **  \par Assumptions, External Events, and Notes:
 **       None
 **
-**  \param [in]   msg           A #CFE_MSG_Message_t pointer that
+**  \param [in]   MsgPtr        A #CFE_MSG_Message_t pointer that
 **                              references the software bus message
 **
 **  \param [in]   ExpectedLen   The expected length of the message
 **                              based upon the command code.
 **
-**  @param [in]   name          Text name of the message expected.
+**  @param [in]   MsgName       Text name of the message expected.
 **
-**  \returns
-**  \retstmt Returns true if the length is as expected      \endcode
-**  \retstmt Returns false if the length is not as expected \endcode
-**  \endreturns
-**
-**  \sa #SBN_LEN_EID
+**  \retval true The length is as expected.
+**  \retval false The length is not as expected.
 **
 *************************************************************************/
 static bool VerifyMsgLen(CFE_MSG_Message_t *MsgPtr, uint16 ExpectedLen, const char *MsgName)
@@ -128,7 +142,7 @@ static bool VerifyMsgLen(CFE_MSG_Message_t *MsgPtr, uint16 ExpectedLen, const ch
 **  \param [in]   MsgPtr A #CFE_MSG_Message_t pointer that
 **                       references the software bus message
 **
-**  \sa #SBN_RESET_CC
+**  \sa #SBN_NOOP_CC
 **
 *************************************************************************/
 static void NoopCmd(CFE_MSG_Message_t *MsgPtr)
@@ -139,7 +153,7 @@ static void NoopCmd(CFE_MSG_Message_t *MsgPtr)
         return;
     } /* end if */
 
-    EVSSendDbg(SBN_CMD_EID, "no-op command");
+    EVSSendInfo(SBN_CMD_EID, "no-op command");
 
     SBN.CmdCnt++;
 } /* end NoopCmd */
@@ -163,7 +177,7 @@ static void NoopCmd(CFE_MSG_Message_t *MsgPtr)
 **  \param [in]   MsgPtr A #CFE_MSG_Message_t pointer that
 **                       references the software bus message
 **
-**  \sa #SBN_RESET_CC
+**  \sa #SBN_HK_RESET_CC
 **
 *************************************************************************/
 static void HKResetCmd(CFE_MSG_Message_t *MsgPtr)
@@ -193,7 +207,7 @@ static void HKResetCmd(CFE_MSG_Message_t *MsgPtr)
 **  \param [in]   MsgPtr A #CFE_MSG_Message_t pointer that
 **                       references the software bus message
 **
-**  \sa #SBN_RESET_PEER_CC
+**  \sa #SBN_HK_RESET_PEER_CC
 **
 *************************************************************************/
 static void HKResetPeerCmd(CFE_MSG_Message_t *MsgPtr)
@@ -248,13 +262,13 @@ static void HKCmd(CFE_MSG_Message_t *MsgPtr)
         return;
     } /* end if */
 
-    EVSSendInfo(SBN_CMD_EID, "hk command");
+    EVSSendDbg(SBN_CMD_EID, "hk command");
 
     uint8  HKBuf[SBN_HK_LEN];
     CFE_MSG_Message_t *HKMsg = (CFE_MSG_Message_t *)HKBuf;
     Pack_t Pack;
 
-    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_TLM_MID), SBN_HK_LEN);
+    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_HK_TLM_MID), SBN_HK_LEN);
 
     Pack_Init(&Pack, HKBuf + sizeof(CFE_MSG_TelemetryHeader_t), SBN_HK_LEN - sizeof(CFE_MSG_TelemetryHeader_t), 1);
 
@@ -304,7 +318,7 @@ static void HKNetCmd(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_Message_t *HKMsg = (CFE_MSG_Message_t *)HKBuf;
     Pack_t Pack;
 
-    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_TLM_MID), SBN_HKNET_LEN);
+    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_HKNET_TLM_MID), SBN_HKNET_LEN);
 
     Pack_Init(&Pack, HKBuf + sizeof(CFE_MSG_TelemetryHeader_t), SBN_HKNET_LEN - sizeof(CFE_MSG_TelemetryHeader_t), 1);
 
@@ -362,7 +376,7 @@ static void HKPeerCmd(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_Message_t *HKMsg = (CFE_MSG_Message_t *)HKBuf;
     Pack_t Pack;
 
-    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_TLM_MID), SBN_HKPEER_LEN);
+    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_HKPEER_TLM_MID), SBN_HKPEER_LEN);
 
     Pack_Init(&Pack, HKBuf + sizeof(CFE_MSG_TelemetryHeader_t), SBN_HKPEER_LEN - sizeof(CFE_MSG_TelemetryHeader_t), 1);
 
@@ -391,7 +405,7 @@ static void HKPeerCmd(CFE_MSG_Message_t *MsgPtr)
  *  \param [in]   MsgPtr A #CFE_MSG_Message_t pointer that
  *                       references the software bus message
  *
- *  \sa #SBN_MYSUBS_CC
+ *  \sa #SBN_HK_MYSUBS_CC
  */
 static void MySubsCmd(CFE_MSG_Message_t *MsgPtr)
 {
@@ -406,7 +420,7 @@ static void MySubsCmd(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_Message_t *HKMsg = (CFE_MSG_Message_t *)HKBuf;
     Pack_t Pack;
 
-    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_TLM_MID), SBN_HKMYSUBS_LEN);
+    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_HKMYSUBS_TLM_MID), SBN_HKMYSUBS_LEN);
 
     Pack_Init(&Pack, HKBuf + sizeof(CFE_MSG_TelemetryHeader_t), SBN_HKMYSUBS_LEN - sizeof(CFE_MSG_TelemetryHeader_t), 1);
 
@@ -434,7 +448,7 @@ static void MySubsCmd(CFE_MSG_Message_t *MsgPtr)
  */
 static void ReloadTblCmd(CFE_MSG_Message_t *MsgPtr)
 {
-    if (!VerifyMsgLen(MsgPtr, sizeof(CFE_MSG_CommandHeader_t), "reloadtbl"))
+    if (VerifyMsgLen(MsgPtr, sizeof(CFE_MSG_CommandHeader_t), "reloadtbl"))
     {
         EVSSendInfo(SBN_CMD_EID, "reload tbl command");
         SBN_ReloadConfTbl();
@@ -453,7 +467,7 @@ static void ReloadTblCmd(CFE_MSG_Message_t *MsgPtr)
 **  \param [in]   MsgPtr   A #CFE_MSG_Message_t pointer that
 **                         references the software bus message
 **
-**  \sa #SBN_MYSUBS_CC
+**  \sa #SBN_HK_MYSUBS_CC
 **
 *************************************************************************/
 static void PeerSubsCmd(CFE_MSG_Message_t *MsgPtr)
@@ -488,7 +502,7 @@ static void PeerSubsCmd(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_Message_t *HKMsg = (CFE_MSG_Message_t *)HKBuf;
     Pack_t Pack;
 
-    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_TLM_MID), SBN_HKPEERSUBS_LEN);
+    CFE_MSG_Init(HKMsg, CFE_SB_ValueToMsgId(SBN_HKPEERSUBS_TLM_MID), SBN_HKPEERSUBS_LEN);
 
     Pack_Init(&Pack, HKBuf + sizeof(CFE_MSG_TelemetryHeader_t), SBN_HKPEERSUBS_LEN - sizeof(CFE_MSG_TelemetryHeader_t), 1);
 

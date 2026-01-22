@@ -25,10 +25,10 @@
 /**
   \page sbnspwovr SBN SPW Module Overview
 
-  The SPW plugin for the Software Bus Network (SBN) allows two CPUs 
-  running cFE to send software bus (SB) messages to each other through a 
-  Spacewire connection. This plugin is never used directly by a user cFE app; 
-  instead it is used by the SBN to make message passing across CPUs transparent 
+  The SPW plugin for the Software Bus Network (SBN) allows two CPUs
+  running cFE to send software bus (SB) messages to each other through a
+  Spacewire connection. This plugin is never used directly by a user cFE app;
+  instead it is used by the SBN to make message passing across CPUs transparent
   to other apps.
 
   SBN uses this module by internally calling a set of functions:
@@ -42,8 +42,8 @@
     <LI>#SPW_VerifyHostInterface       (Makes sure host entry has matching peer)
   </UL>
 
-  These functions then use SPW-specific read/write operations to 
-  pass messages. 
+  These functions then use SPW-specific read/write operations to
+  pass messages.
 
   Next: \ref sbnspwopr <BR>
   Prev: \ref sbnspwrevhist
@@ -51,7 +51,7 @@
 
 /**
   \page sbnspwopr SBN SPW Module Operation
-  
+
 
   Next: \ref sbnspwcfg <BR>
   Prev: \ref sbnspwovr
@@ -77,13 +77,13 @@
     <LI>Device Instance, as populated on the filesystem by the driver (e.g. 'spw0' in '/dev')
   </UL>
 
-  The SPW interface does not require any kind of "matching" pairs. An example of SPW entries 
+  The SPW interface does not require any kind of "matching" pairs. An example of SPW entries
   is below. The Spacewire Device Class and Device Instance values are defined by the device driver
   and are used by SBN as a description of how the driver initialized the interface on that particular spacecraft.
 
   <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
   <TR>
-    <TD WIDTH="5%"><B>Name</B></TD> 
+    <TD WIDTH="5%"><B>Name</B></TD>
     <TD WIDTH="10%"><B>Processor ID</B></TD>
     <TD WIDTH="10%"><B>Protocol ID</B></TD>
     <TD WIDTH="10%"><B>Spacecraft ID</B></TD>
@@ -91,22 +91,22 @@
     <TD WIDTH="10%"><B>Device Instance</B></TD>
   </TR>
   <TR>
-    <TD WIDTH="5%">CPU1</TD> 
-    <TD WIDTH="10%">1</TD> 
+    <TD WIDTH="5%">CPU1</TD>
+    <TD WIDTH="10%">1</TD>
     <TD WIDTH="10%">?</TD>
     <TD WIDTH="10%">0</TD>
     <TD WIDTH="10%">spw</TD>
     <TD WIDTH="10%">spw0</TD>
   </TR>
   <TR>
-    <TD WIDTH="5%">CPU2</TD> 
-    <TD WIDTH="10%">2</TD> 
+    <TD WIDTH="5%">CPU2</TD>
+    <TD WIDTH="10%">2</TD>
     <TD WIDTH="10%">?</TD>
     <TD WIDTH="10%">0</TD>
     <TD WIDTH="10%">spw</TD>
     <TD WIDTH="10%">spw0</TD>
   </TR>
-  </TABLE>  
+  </TABLE>
 
   Next: \ref sbnspwcons <BR>
   Prev: \ref sbnspwopr
@@ -116,12 +116,12 @@
   \page sbnspwcons SBN SPW Module Constraints
 
   <UL>
-    <LI>This module is dependent on the Spacewire implementation of the FPGA 
+    <LI>This module is dependent on the Spacewire implementation of the FPGA
         core used at Goddard/587 and character device driver behavior of the
         CHREC/Gauvin kernel module.
 	<LI>Data transfers have error conditions that currently only check whether
 	    the Spacewire link is down, or if the data copies to the buffer were unsuccessful.
-	    
+	
   </UL>
 
   Prev: \ref sbnspwcfg

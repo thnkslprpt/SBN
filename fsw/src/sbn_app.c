@@ -1,23 +1,20 @@
-/******************************************************************************
- ** \file sbn_app.c
- **
- **      Copyright (c) 2004-2006, United States government as represented by the
- **      administrator of the National Aeronautics Space Administration.
- **      All rights reserved. This software(cFE) was created at NASA's Goddard
- **      Space Flight Center pursuant to government contracts.
- **
- **      This software may be used only pursuant to a United States government
- **      sponsored project and the United States government may not be charged
- **      for use thereof.
- **
- ** Purpose:
- **      This file contains source code for the Software Bus Network
- **      Application.
- **
- ** Authors:   J. Wilmot/GSFC Code582
- **            R. McGraw/SSI
- **            C. Knight/ARC Code TI
- ******************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /*
  ** Include Files
@@ -26,8 +23,8 @@
 
 #include "sbn_pack.h"
 #include "sbn_app.h"
-#include "cfe_sb_events.h" /* For event message IDs */
-#include "cfe_es.h"        /* PerfLog */
+#include "cfe_sb_eventids.h" /* For event message IDs */
+#include "cfe_es.h"          /* PerfLog */
 #include "cfe_platform_cfg.h"
 #include "cfe_msgids.h"
 #include "cfe_version.h"
@@ -46,7 +43,7 @@ static SBN_Status_t UnloadModules(void)
 
     for (i = 0; i < SBN_MAX_MOD_CNT; i++)
     {
-        if (SBN.ProtocolModules[i] == 0)
+        if (!OS_ObjectIdDefined(SBN.ProtocolModules[i]))
         {
             continue; /* this module may have been loaded by ES, so continue in case there are any I loaded. */
         }             /* end if */
@@ -60,7 +57,7 @@ static SBN_Status_t UnloadModules(void)
 
     for (i = 0; i < SBN_MAX_MOD_CNT; i++)
     {
-        if (SBN.FilterModules[i] == 0)
+        if (!OS_ObjectIdDefined(SBN.FilterModules[i]))
         {
             continue; /* this module may have been loaded by ES, so continue in case there are any I loaded. */
         }             /* end if */
@@ -80,12 +77,12 @@ static SBN_Status_t UnloadModules(void)
  *
  * \note Ensures the SBN fields (CPU ID, MsgSz) and CCSDS message headers
  *       are in network (big-endian) byte order.
- * \param SBNBuf[out] The buffer to pack into.
- * \param MsgSz[in] The size of the payload.
- * \param MsgType[in] The SBN message type.
- * \param ProcessorID[in] The ProcessorID of the sender (should be CFE_CPU_ID)
- * \param SpacecraftID[in] The SpacecraftID of the sender
- * \param Msg[in] The payload (CCSDS message or SBN sub/unsub.)
+ * \param[out] SBNBuf The buffer to pack into.
+ * \param[in] MsgSz The size of the payload.
+ * \param[in] MsgType The SBN message type.
+ * \param[in] ProcessorID The ProcessorID of the sender (should be CFE_CPU_ID)
+ * \param[in] SpacecraftID The SpacecraftID of the sender
+ * \param[in] Msg The payload (CCSDS message or SBN sub/unsub.)
  */
 void SBN_PackMsg(void *SBNBuf, SBN_MsgSz_t MsgSz, SBN_MsgType_t MsgType, CFE_ProcessorID_t ProcessorID,  CFE_ProcessorID_t SpacecraftID,void *Msg)
 {
@@ -109,11 +106,12 @@ void SBN_PackMsg(void *SBNBuf, SBN_MsgSz_t MsgSz, SBN_MsgType_t MsgType, CFE_Pro
 /**
  * Unpacks a CCSDS message with an SBN message header.
  *
- * \param SBNBuf[in] The buffer to unpack.
- * \param MsgTypePtr[out] The SBN message type.
- * \param MsgSzPtr[out] The payload size.
- * \param ProcessorID[out] The ProcessorID of the sender.
- * \param Msg[out] The payload (a CCSDS message, or SBN sub/unsub).
+ * \param[in] SBNBuf The buffer to unpack.
+ * \param[out] MsgSzPtr The payload size.
+ * \param[out] MsgTypePtr The SBN message type.
+ * \param[out] ProcessorIDPtr The ProcessorID of the sender.
+ * \param[out] SpacecraftIDPtr The SpacecraftID of the sender.
+ * \param[out] Msg The payload (a CCSDS message, or SBN sub/unsub).
  * \return true if we were able to unpack the message.
  *
  * \note Ensures the SBN fields (CPU ID, MsgSz) and CCSDS message headers
@@ -151,7 +149,7 @@ bool SBN_UnpackMsg(void *SBNBuf, SBN_MsgSz_t *MsgSzPtr, SBN_MsgType_t *MsgTypePt
 /**
  * Called by a protocol module to signal that a peer has been connected.
  *
- * @param Peer[in] The peer that has been connected.
+ * @param[in] Peer The peer that has been connected.
  * @return SBN_SUCCESS or SBN_ERROR if there was an issue.
  */
 SBN_Status_t SBN_Connected(SBN_PeerInterface_t *Peer)
@@ -211,7 +209,7 @@ SBN_Status_t SBN_Connected(SBN_PeerInterface_t *Peer)
 /**
  * Called by a protocol module to signal that a peer has been disconnected.
  *
- * @param Peer[in] The peer that has been disconnected.
+ * @param[in] Peer The peer that has been disconnected.
  * @return SBN_SUCCESS or SBN_ERROR if there was an issue.
  */
 SBN_Status_t SBN_Disconnected(SBN_PeerInterface_t *Peer)
@@ -228,13 +226,13 @@ SBN_Status_t SBN_Disconnected(SBN_PeerInterface_t *Peer)
     Peer->Connected = 0; /**< mark as disconnected before deleting pipe */
 
     if((Status = CFE_SB_DeletePipe(Peer->Pipe)) != CFE_SUCCESS) {
-      EVSSendErr(SBN_PEER_EID, "%s could not delete pipe when disconnecting peer %d:%d: 0x%08x", 
+      EVSSendErr(SBN_PEER_EID, "%s could not delete pipe when disconnecting peer %d:%d: 0x%08x",
           FAIL_PREFIX,
           Peer->SpacecraftID,
           Peer->ProcessorID,
           Status);
     }
-    Peer->Pipe = 0;
+    Peer->Pipe = CFE_SB_INVALID_PIPE;
 
     Peer->SendCnt = 0;
     Peer->RecvCnt = 0;
@@ -255,7 +253,7 @@ SBN_Status_t SBN_Disconnected(SBN_PeerInterface_t *Peer)
 typedef struct
 {
     SBN_Status_t         Status;
-    OS_TaskID_t          RecvTaskID;
+    CFE_ES_TaskId_t      RecvTaskID;
     SBN_PeerIdx_t        PeerIdx;
     SBN_NetIdx_t         NetIdx;
     SBN_PeerInterface_t *Peer;
@@ -276,7 +274,7 @@ void SBN_RecvPeerTask(void)
     RecvPeerTaskData_t D;
     memset(&D, 0, sizeof(D));
 
-    D.RecvTaskID = OS_TaskGetId();
+    CFE_ES_GetTaskID(&D.RecvTaskID);
 
     for (D.NetIdx = 0; D.NetIdx < SBN.NetCnt; D.NetIdx++)
     {
@@ -289,7 +287,7 @@ void SBN_RecvPeerTask(void)
         for (D.PeerIdx = 0; D.PeerIdx < D.Net->PeerCnt; D.PeerIdx++)
         {
             D.Peer = &D.Net->Peers[D.PeerIdx];
-            if (D.Peer->RecvTaskID == D.RecvTaskID)
+            if (CFE_RESOURCEID_TEST_EQUAL(D.Peer->RecvTaskID, D.RecvTaskID))
             {
                 break;
             } /* end if */
@@ -324,7 +322,7 @@ void SBN_RecvPeerTask(void)
 
             if (D.Status != SBN_SUCCESS)
             {
-                D.Peer->RecvTaskID = 0;
+                D.Peer->RecvTaskID = CFE_ES_TASKID_UNDEFINED;
                 return;
             } /* end if */
         }
@@ -332,7 +330,7 @@ void SBN_RecvPeerTask(void)
         {
             EVSSendErr(SBN_PEER_EID, "recv error (%d)", D.Status);
             D.Peer->RecvErrCnt++;
-            D.Peer->RecvTaskID = 0;
+            D.Peer->RecvTaskID = CFE_ES_TASKID_UNDEFINED;
             return;
         } /* end if */
     }     /* end while */
@@ -344,7 +342,7 @@ typedef struct RecvNetTaskData_s
     SBN_NetInterface_t * Net;
     SBN_PeerInterface_t *Peer;
     SBN_Status_t         Status;
-    OS_TaskID_t          RecvTaskID;
+    CFE_ES_TaskId_t      RecvTaskID;
     CFE_ProcessorID_t    ProcessorID;
     CFE_SpacecraftID_t   SpacecraftID;
     SBN_MsgType_t        MsgType;
@@ -363,12 +361,12 @@ void SBN_RecvNetTask(void)
     RecvNetTaskData_t D;
     memset(&D, 0, sizeof(D));
 
-    D.RecvTaskID = OS_TaskGetId();
+    CFE_ES_GetTaskID(&D.RecvTaskID);
 
     for (D.NetIdx = 0; D.NetIdx < SBN.NetCnt; D.NetIdx++)
     {
         D.Net = &SBN.Nets[D.NetIdx];
-        if (D.Net->RecvTaskID == D.RecvTaskID)
+        if (CFE_RESOURCEID_TEST_EQUAL(D.Net->RecvTaskID, D.RecvTaskID))
         {
             break;
         } /* end if */
@@ -415,7 +413,7 @@ void SBN_RecvNetTask(void)
     }     /* end while */
 
     /* Unset the task id so that it can be created if necessary */
-    D.Net->RecvTaskID = 0;
+    D.Net->RecvTaskID = CFE_ES_TASKID_UNDEFINED;
 } /* end SBN_RecvNetTask() */
 
 /**
@@ -534,7 +532,7 @@ SBN_Status_t SBN_SendNetMsg(SBN_MsgType_t MsgType, SBN_MsgSz_t MsgSz, void *Msg,
     SBN_NetInterface_t *Net        = Peer->Net;
     SBN_Status_t        SBN_Status = SBN_SUCCESS;
 
-    if (Peer->SendTaskID)
+    if (CFE_RESOURCEID_TEST_DEFINED(Peer->SendTaskID))
     {
         if (OS_MutSemTake(SBN.SendMutex) != OS_SUCCESS)
         {
@@ -555,7 +553,7 @@ SBN_Status_t SBN_SendNetMsg(SBN_MsgType_t MsgType, SBN_MsgSz_t MsgSz, void *Msg,
     /* for clients that need a poll or heartbeat, update time even when failing */
     OS_GetLocalTime(&Peer->LastSend);
 
-    if (Peer->SendTaskID)
+    if (CFE_RESOURCEID_TEST_DEFINED(Peer->SendTaskID))
     {
         if (OS_MutSemGive(SBN.SendMutex) != OS_SUCCESS)
         {
@@ -572,7 +570,7 @@ typedef struct
     SBN_Status_t         Status;
     SBN_NetIdx_t         NetIdx;
     SBN_PeerIdx_t        PeerIdx;
-    OS_TaskID_t          SendTaskID;
+    CFE_ES_TaskId_t      SendTaskID;
     CFE_MSG_Message_t   *MsgPtr;
     CFE_SB_MsgId_t       MsgID;
     SBN_NetInterface_t  *Net;
@@ -594,7 +592,7 @@ void SBN_SendTask(void)
 
     memset(&D, 0, sizeof(D));
 
-    D.SendTaskID = OS_TaskGetId();
+    CFE_ES_GetTaskID(&D.SendTaskID);
 
     for (D.NetIdx = 0; D.NetIdx < SBN.NetCnt; D.NetIdx++)
     {
@@ -602,7 +600,7 @@ void SBN_SendTask(void)
         for (D.PeerIdx = 0; D.PeerIdx < D.Net->PeerCnt; D.PeerIdx++)
         {
             D.Peer = &D.Net->Peers[D.PeerIdx];
-            if (D.Peer->SendTaskID == D.SendTaskID)
+            if (CFE_RESOURCEID_TEST_EQUAL(D.Peer->SendTaskID, D.SendTaskID))
             {
                 break;
             } /* end if */
@@ -677,7 +675,7 @@ void SBN_SendTask(void)
     }     /* end while */
 
     /* mark peer as not having a task so that sending will create a new one */
-    D.Peer->SendTaskID = 0;
+    D.Peer->SendTaskID = CFE_ES_TASKID_UNDEFINED;
 } /* end SBN_SendTask() */
 
 /**
@@ -730,7 +728,7 @@ static SBN_Status_t CheckPeerPipes(void)
 
                 if (Peer->TaskFlags & SBN_TASK_SEND)
                 {
-                    if (!Peer->SendTaskID)
+                    if (!CFE_RESOURCEID_TEST_DEFINED(Peer->SendTaskID))
                     {
                         /* TODO: logic/controls to prevent hammering? */
                         char SendTaskName[32];
@@ -820,7 +818,7 @@ static SBN_Status_t PeerPoll(void)
 
         if (Net->IfOps->RecvFromNet && Net->TaskFlags & SBN_TASK_RECV)
         {
-            if (!Net->RecvTaskID)
+            if (!CFE_RESOURCEID_TEST_DEFINED(Net->RecvTaskID))
             {
                 EVSSendInfo(SBN_PEER_EID, "Creating recv task for net %d", (int)NetIdx);
 
@@ -847,7 +845,7 @@ static SBN_Status_t PeerPoll(void)
 
                 if (Net->IfOps->RecvFromPeer && Peer->TaskFlags & SBN_TASK_RECV)
                 {
-                    if (!Peer->RecvTaskID)
+                    if (!CFE_RESOURCEID_TEST_DEFINED(Peer->RecvTaskID))
                     {
                         /* TODO: add logic/controls to prevent hammering */
                         char RecvTaskName[32];
@@ -993,7 +991,7 @@ static cpuaddr LoadConf_Module(SBN_Module_Entry_t *e, CFE_ES_ModuleID_t *ModuleI
 {
     cpuaddr StructAddr;
 
-    EVSSendInfo(SBN_TBL_EID, "checking if module (%s) already loded", e->Name);
+    EVSSendInfo(SBN_TBL_EID, "checking if module (%s) already loaded", e->Name);
     if (OS_SymbolLookup(&StructAddr, e->LibSymbol) != OS_SUCCESS) /* try loading it if it's not already loaded */
     {
         EVSSendInfo(SBN_TBL_EID, "symbol not yet loaded (%s)", e->LibSymbol);
@@ -1027,11 +1025,12 @@ static cpuaddr LoadConf_Module(SBN_Module_Entry_t *e, CFE_ES_ModuleID_t *ModuleI
  * Load the filters from the table.
  * Cleaned up by UnloadModules()
  *
- * @param FilterModules[in] - The filter module entries in the table.
- * @param FilterModuleCnt[in] - The number of entries in FilterModules.
- * @param ModuleNames[in] - The array of filters this peer/net wishes to use.
- * @param FilterFns[out] - The function pointers for the filters requested.
- * @return The number of entries in FilterFns.
+ * @param[in]  FilterModules - The filter module entries in the table.
+ * @param[in]  FilterModuleCnt - The number of entries in FilterModules.
+ * @param[in]  ConfFilters - The array of filter configs.
+ * @param[in]  ModuleNames - The array of module names this peer/net wishes to use.
+ * @param[out] Filters - The function pointers for the filters requested.
+ * @return The number of entries in Filters.
  */
 static SBN_ModuleIdx_t LoadConf_Filters(SBN_Module_Entry_t *FilterModules, SBN_ModuleIdx_t FilterModuleCnt,
                                         SBN_FilterInterface_t **ConfFilters,
@@ -1087,7 +1086,7 @@ static SBN_Status_t LoadConf(void)
     EVSSendDbg(SBN_TBL_EID, "Loading protocol modules...");
     for (ModuleIdx = 0; ModuleIdx < TblPtr->ProtocolCnt; ModuleIdx++)
     {
-        CFE_ES_ModuleID_t ModuleID = 0;
+        CFE_ES_ModuleID_t ModuleID = OS_OBJECT_ID_UNDEFINED;
 
         SBN_IfOps_t *Ops = (SBN_IfOps_t *)LoadConf_Module(&TblPtr->ProtocolModules[ModuleIdx], &ModuleID);
 
@@ -1113,7 +1112,7 @@ static SBN_Status_t LoadConf(void)
     EVSSendDbg(SBN_TBL_EID, "Loading filter modules...");
     for (ModuleIdx = 0; ModuleIdx < TblPtr->FilterCnt; ModuleIdx++)
     {
-        CFE_ES_ModuleID_t ModuleID = 0;
+        CFE_ES_ModuleID_t ModuleID = OS_OBJECT_ID_UNDEFINED;
 
         Filters[ModuleIdx] = (SBN_FilterInterface_t *)LoadConf_Module(&TblPtr->FilterModules[ModuleIdx], &ModuleID);
 
@@ -1241,7 +1240,7 @@ static SBN_Status_t UnloadPeer(SBN_PeerInterface_t *Peer)
 
   if (Peer->TaskFlags & SBN_TASK_SEND)
   {
-    if (Peer->SendTaskID)
+    if (CFE_RESOURCEID_TEST_DEFINED(Peer->SendTaskID))
     {
       if(CFE_ES_DeleteChildTask(Peer->SendTaskID) != CFE_SUCCESS) {
         EVSSendCrit(SBN_TBL_EID, "unable to delete send task for peer %d:%d", Peer->SpacecraftID, Peer->ProcessorID);
@@ -1252,7 +1251,7 @@ static SBN_Status_t UnloadPeer(SBN_PeerInterface_t *Peer)
 
   if (Peer->TaskFlags & SBN_TASK_RECV)
   {
-    if (Peer->RecvTaskID)
+    if (CFE_RESOURCEID_TEST_DEFINED(Peer->RecvTaskID))
     {
       if(CFE_ES_DeleteChildTask(Peer->RecvTaskID) != CFE_SUCCESS) {
         EVSSendCrit(SBN_TBL_EID, "unable to delete recv task for peer %d:%d", Peer->SpacecraftID, Peer->ProcessorID);
@@ -1265,7 +1264,7 @@ static SBN_Status_t UnloadPeer(SBN_PeerInterface_t *Peer)
   Peer->SpacecraftID = 0;
   Peer->Net = NULL;
   Peer->TaskFlags = 0;
-  Peer->Pipe = 0;
+  Peer->Pipe = CFE_SB_INVALID_PIPE;
   Peer->FilterCnt = 0;
 
   return SBN_SUCCESS;
@@ -1281,12 +1280,12 @@ static SBN_Status_t UnloadNets(void)
         SBN_NetInterface_t *Net = &SBN.Nets[NetIdx];
         Net->Configured = false;
 
-        if(Net->RecvTaskID != 0) {
+        if(CFE_RESOURCEID_TEST_DEFINED(Net->RecvTaskID)) {
           if(CFE_ES_DeleteChildTask(Net->RecvTaskID) != CFE_SUCCESS) {
             EVSSendCrit(SBN_TBL_EID, "unable to delete receive task %d", NetIdx);
           }
 
-          Net->RecvTaskID = 0;
+          Net->RecvTaskID = CFE_ES_TASKID_UNDEFINED;
         }
 
         // UnloadNet assumes Peers are still valid
@@ -1429,7 +1428,7 @@ static SBN_Status_t Init(void)
     EVSSendInfo(SBN_INIT_EID,
                 "initialized (ProcessorID=%d SpacecraftId=%d %s "
                 "SBN.AppID=%d...",
-                (int)CFE_PSP_GetProcessorId(), (int)CFE_PSP_GetSpacecraftId(), bit_order, (int)SBN.AppID);
+                (int)CFE_PSP_GetProcessorId(), (int)CFE_PSP_GetSpacecraftId(), bit_order, (int)CFE_RESOURCEID_TO_ULONG(SBN.AppID));
 
     EVSSendInfo(SBN_INIT_EID, "...SBN_IDENT=%s CMD_MID=0x%04X)", SBN_IDENT, SBN_CMD_MID);
 
@@ -1484,9 +1483,10 @@ void SBN_AppMain(void)
     static const char FAIL_PREFIX[] = "ERROR: could not start SBN:";
     CFE_ES_TaskInfo_t TaskInfo;
     uint32            Status    = CFE_SUCCESS;
-    uint32            RunStatus = CFE_ES_RunStatus_APP_RUN, AppID = 0;
+    uint32            RunStatus = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_AppId_t    AppID     = CFE_ES_APPID_UNDEFINED;
 
-    if (CFE_EVS_Register(NULL, 0, CFE_EVS_NO_FILTER != CFE_SUCCESS))
+    if (CFE_EVS_Register(NULL, 0, CFE_EVS_NO_FILTER) != CFE_SUCCESS)
         return;
 
     if (CFE_ES_GetAppID(&AppID) != CFE_SUCCESS)
@@ -1498,7 +1498,8 @@ void SBN_AppMain(void)
     SBN.AppID = AppID;
 
     /* load my TaskName so I can ignore messages I send out to SB */
-    uint32 TskId = OS_TaskGetId();
+    CFE_ES_TaskId_t TskId;
+    CFE_ES_GetTaskID(&TskId);
     if ((Status = CFE_ES_GetTaskInfo(&TaskInfo, TskId)) != CFE_SUCCESS)
     {
         EVSSendErr(SBN_INIT_EID, "%s SBN failed to get task info (%d)", FAIL_PREFIX, (int)Status);
@@ -1584,10 +1585,12 @@ void SBN_AppMain(void)
 } /* end SBN_AppMain */
 
 /**
- * Sends a message to a peer.
+ * Process a message from the network interface
+ * @param[in] Net The net interface of the peer
  * @param[in] MsgType The type of the message (application data, SBN protocol)
  * @param[in] ProcessorID The ProcessorID to send this message to.
- * @param[in] MsgSz The size of the message (in bytes).
+ * @param[in] SpacecraftID The SpacecraftID to send this message to.
+ * @param[in] MsgSize The size of the message (in bytes).
  * @param[in] Msg The message contents.
  *
  * @return SBN_SUCCESS on successful processing, SBN_ERROR otherwise
@@ -1687,9 +1690,9 @@ SBN_Status_t SBN_ProcessNetMsg(SBN_NetInterface_t *Net, SBN_MsgType_t MsgType, C
 
 /**
  * Find the PeerIndex for a given ProcessorID and net.
- * @param Net[in] The network interface to search.
- * @param ProcessorID[in] The ProcessorID of the peer being sought.
- * @param SpacecraftID[in] The SpacecraftI of the peer being sought.
+ * @param[in] Net The network interface to search.
+ * @param[in] ProcessorID The ProcessorID of the peer being sought.
+ * @param[in] SpacecraftID The SpacecraftI of the peer being sought.
  * @return The Peer interface pointer, or NULL if not found.
  */
 SBN_PeerInterface_t *SBN_GetPeer(SBN_NetInterface_t *Net, CFE_ProcessorID_t ProcessorID, CFE_SpacecraftID_t SpacecraftID)

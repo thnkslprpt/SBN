@@ -1,20 +1,20 @@
 /************************************************************************
 ** File: to_sub_table.h
 **
-** Purpose: 
-**  Define TO Lab CPU specific subscription table 
+** Purpose:
+**  Define TO Lab CPU specific subscription table
 **
 ** Notes:
 **
 ** $Log: to_lab_sub_table.h  $
-** Revision 1.3 2014/07/16 14:44:45GMT-05:00 acudmore 
+** Revision 1.3 2014/07/16 14:44:45GMT-05:00 acudmore
 ** Member renamed from to_sub_table.h to to_lab_sub_table.h in project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/to_lab/fsw/platform_inc/project.pj.
-** Revision 1.2 2014/07/16 14:44:45ACT acudmore 
+** Revision 1.2 2014/07/16 14:44:45ACT acudmore
 ** Updated TO_LAB subscription table header file ( comments, clean up )
 **
 *************************************************************************/
 
-/* 
+/*
 ** Add the proper include file for the message IDs below
 */
 #include "cfe_msgids.h"
@@ -43,5 +43,5 @@ static TO_subscription_t  TO_SubTable[] =
 };
 
 /************************
-** End of File Comment ** 
+** End of File Comment **
 ************************/

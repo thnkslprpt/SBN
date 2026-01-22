@@ -159,13 +159,13 @@ SBN shall comply with Core Flight Software application interface requirements.
 
 ### SBN2004
 
-Upon receipt of a Command, SBN application shall generate a NO-OP event message.
+Upon receipt of a No-Op Command, SBN application shall generate a NO-OP event message.
 
 *Rationale: This command is useful as a general sub-system aliveness test.*
 
 ### SBN2005
 
-Upon receipt of a valid Command, SBN shall increment a valid Command 
+Upon receipt of a valid No-Op Command, SBN shall increment a valid Command
 counter.
 
 *Rationale: The ground needs the capability to verify that the command was
@@ -173,28 +173,28 @@ received and accepted by SBN.*
 
 ### SBN2006
 
-Upon receipt of an invalid Command, SBN shall increment the invalid Command 
+Upon receipt of an invalid Command, SBN shall increment the invalid Command
 counter and generate an event message.
 
 *Rationale: The ground needs an indicator if a command is rejected by SBN.*
 
 ### SBN2007
 
-Upon receipt of a Command, SBN shall send housekeeping telemetry indicating
+Upon receipt of a Housekeeping Command, SBN shall send housekeeping telemetry indicating
 the operating status of the application.
 
 *Rationale: The ground needs an indicator of the current running state of SBN.*
 
 ### SBN2008
 
-Upon receipt of a Command, SBN shall send housekeeping telemetry indicating
+Upon receipt of a Peer Housekeeping Command, SBN shall send housekeeping telemetry indicating
 the current operating status regarding a particular peer.
 
 *Rationale: The ground needs an indicator of the current running state of SBN.*
 
 ### SBN2009
 
-Upon receipt of a Command, SBN shall set to zero the housekeeping statistics.
+Upon receipt of a Reset Command, SBN shall set to zero the housekeeping statistics.
 
 *Rationale: This command is a common feature in heritage sub-system software
 design.*

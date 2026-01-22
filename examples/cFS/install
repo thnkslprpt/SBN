@@ -119,7 +119,7 @@ EOF
 cat > "${CFS_ROOT}/apps/sbn_f_remap/fsw/tables/sbn_remap_tbl.c" <<- "EOF"
 	#include "sbn_remap_tbl.h"
 	#include "cfe_tbl_filedef.h"
-	#include "cfe_sb.h" 
+	#include "cfe_sb.h"
 	
 	SBN_RemapTbl_t SBN_RemapTbl = {
 	    .RemapDefaultFlag = SBN_REMAP_DEFAULT_SEND,
@@ -133,9 +133,9 @@ cat > "${CFS_ROOT}/apps/sbn_f_remap/fsw/tables/sbn_remap_tbl.c" <<- "EOF"
 EOF
 
 cat > "${CFS_ROOT}/apps/sch_lab/fsw/tables/sch_lab_table.c" <<- "EOF"
-	#include "cfe_tbl_filedef.h" 
+	#include "cfe_tbl_filedef.h"
 	#include "sch_lab_table.h"
-	#include "cfe_sb.h" 
+	#include "cfe_sb.h"
 	#include "sbn_msgids.h"
 	
 	SCH_LAB_ScheduleTable_t SCH_TBL_Structure = {.TickRate = 1, .Config = {{CFE_SB_MSGID_WRAP_VALUE(SBN_CMD_MID), 4, 0}}};

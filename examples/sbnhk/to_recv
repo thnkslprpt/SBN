@@ -18,7 +18,7 @@ sock.bind(("127.0.0.1", 1235))
 class SBN_Peer:
     structstr = '>4B8s5I5H'
     structstrsz = struct.calcsize(structstr)
-    
+
     def __init__(self, data):
         (self.CC, self.QoSPri, self.QoSRel, self.NameLen, self.Name, self.ProcessorID, self.LastSendSec, self.LastSendUSec, self.LastRecvSec, self.LastRecvUSec, self.SendCnt, self.RecvCnt, self.SendErrCnt, self.RecvErrCnt, self.SubCnt) = struct.unpack(self.structstr, data[0:self.structstrsz])
 
@@ -31,7 +31,7 @@ class SBN_Peer:
 class SBN_Net:
     structstr = '>2B16sBH'
     structstrsz = struct.calcsize(structstr)
-    
+
     def __init__(self, data):
         (self.CC, self.NameLen, self.Name, self.ProtocolID, self.PeerCnt) = struct.unpack(self.structstr, data[0:self.structstrsz])
 

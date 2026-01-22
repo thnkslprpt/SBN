@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_interfaces.h"
 #include "sbn_platform_cfg.h"
 #include "cfe.h"
@@ -29,7 +47,7 @@ typedef struct
 {
     bool                 InUse, ReceivingBody;
     int                  RecvSz;
-    int                  Socket;
+    osal_id_t            Socket;
     uint8                BufNum;
     SBN_PeerInterface_t *PeerInterface; /* affiliated peer, if known */
 } SBN_TCP_Conn_t;
@@ -47,7 +65,7 @@ typedef struct
 {
     OS_SockAddr_t  Addr;
     uint8          BufNum; /* outgoing buffer */
-    int            Socket; /* server socket */
+    osal_id_t      Socket; /* server socket */
     SBN_TCP_Conn_t Conns[SBN_MAX_PEER_CNT];
 } SBN_TCP_Net_t;
 
@@ -126,7 +144,7 @@ static SBN_Status_t ConfAddr(OS_SockAddr_t *Addr, const char *Address)
 static uint8 SendBufs[SBN_MAX_NETS][SBN_MAX_PACKED_MSG_SZ];
 static int   SendBufCnt = 0;
 
-static SBN_TCP_Conn_t *NewConn(SBN_TCP_Net_t *NetData, int Socket)
+static SBN_TCP_Conn_t *NewConn(SBN_TCP_Net_t *NetData, osal_id_t Socket)
 {
     /* warning -- no protections against flooding */
     /* TODO: do I need a mutex? */
@@ -211,14 +229,14 @@ static SBN_Status_t LoadPeer(SBN_PeerInterface_t *Peer, const char *Address)
  * Initializes an TCP host or peer data struct depending on the
  * CPU name.
  *
- * @param  Interface data structure containing the file entry
+ * @param  Net Network interface information for the peer
  * @return SBN_SUCCESS on success, error code otherwise
  */
 static SBN_Status_t InitNet(SBN_NetInterface_t *Net)
 {
     SBN_TCP_Net_t *NetData = (SBN_TCP_Net_t *)Net->ModulePvt;
 
-    OS_SocketID_t Socket = 0;
+    OS_SocketID_t Socket = OS_OBJECT_ID_UNDEFINED;
 
     if (OS_SocketOpen(&Socket, OS_SocketDomain_INET, OS_SocketType_STREAM) != OS_SUCCESS)
     {
@@ -228,7 +246,7 @@ static SBN_Status_t InitNet(SBN_NetInterface_t *Net)
 
     if (OS_SocketBind(Socket, &NetData->Addr) != OS_SUCCESS)
     {
-        EVSSendErr(SBN_TCP_SOCK_EID, "bind call failed (0x%lx Socket=%d)", (unsigned long int)NetData, NetData->Socket);
+        EVSSendErr(SBN_TCP_SOCK_EID, "bind call failed (0x%lx Socket=%ld)", (unsigned long int)NetData, OS_ObjectIdToInteger(NetData->Socket));
         return SBN_ERROR;
     }
 
@@ -240,7 +258,7 @@ static SBN_Status_t InitNet(SBN_NetInterface_t *Net)
 /**
  * Initializes an TCP peer.
  *
- * @param  Interface data structure containing the file entry
+ * @param  Peer Data structure containing the peer information
  * @return SBN_SUCCESS on success, error code otherwise
  */
 static SBN_Status_t InitPeer(SBN_PeerInterface_t *Peer)
@@ -261,7 +279,7 @@ static void CheckNet(SBN_NetInterface_t *Net)
     OS_time_t LocalTime;
     OS_GetLocalTime(&LocalTime);
 
-    OS_SockFileDes_t ClientFd = 0;
+    OS_SockFileDes_t ClientFd = OS_OBJECT_ID_UNDEFINED;
     OS_SockAddr_t    Addr;
     /* NOTE: OSAL currently has a bug that causes OS_SocketAccept to fail, see ticket #349. */
     while ((Status = OS_SocketAccept(NetData->Socket, &ClientFd, &Addr, 0)) == OS_SUCCESS)
@@ -293,7 +311,7 @@ static void CheckNet(SBN_NetInterface_t *Net)
 
                 PeerData->LastConnectTry = LocalTime;
 
-                OS_SocketID_t Socket = 0;
+                OS_SocketID_t Socket = OS_OBJECT_ID_UNDEFINED;
 
                 if (OS_SocketOpen(&Socket, OS_SocketDomain_INET, OS_SocketType_STREAM) != OS_SUCCESS)
                 {
@@ -530,7 +548,7 @@ static SBN_Status_t UnloadNet(SBN_NetInterface_t *Net)
 {
     SBN_TCP_Net_t *NetData = (SBN_TCP_Net_t *)Net->ModulePvt;
 
-    if (NetData->Socket)
+    if (OS_ObjectIdDefined(NetData->Socket))
     {
         OS_close(NetData->Socket);
     } /* end if */

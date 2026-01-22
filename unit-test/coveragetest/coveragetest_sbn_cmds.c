@@ -1,27 +1,51 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_coveragetest_common.h"
 #include "sbn_app.h"
 #include "cfe_msgids.h"
-#include "cfe_sb_events.h"
+#include "cfe_sb_eventids.h"
 #include "sbn_pack.h"
 
 uint8 Buffer[1024];
 
 CFE_MSG_Message_t *CmdPktPtr = (CFE_MSG_Message_t *)Buffer;
-CFE_MSG_Size_t MsgSz = sizeof(CFE_MSG_CommandHeader_t);
-CFE_SB_MsgId_t MsgId = SBN_CMD_MID;
-CFE_MSG_FcnCode_t FcnCode = SBN_NOOP_CC;
+CFE_MSG_Size_t     MsgSz     = sizeof(CFE_MSG_CommandHeader_t);
+CFE_SB_MsgId_t     MsgId     = {.Value = SBN_CMD_MID};
+CFE_MSG_FcnCode_t  FcnCode   = SBN_NOOP_CC;
 
-#define MSGINIT() CFE_MSG_Init(CmdPktPtr, MsgId, MsgSz); UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false); UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSz, sizeof(MsgSz), false); UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false); UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+#define MSGINIT()                                                                   \
+    CFE_MSG_Init(CmdPktPtr, MsgId, MsgSz);                                          \
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);       \
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSz, sizeof(MsgSz), false);        \
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false); \
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
 static void NOOP_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "invalid no-op command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_NOOP_CC;
     MSGINIT();
 
@@ -35,12 +59,13 @@ static void NOOP_MsgLenErr(void)
 static void NOOP_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "no-op command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_NOOP_CC;
     MSGINIT();
 
@@ -52,12 +77,13 @@ static void NOOP_Nominal(void)
 static void HKNet_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command, net=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_NET_CC;
     MSGINIT();
 
@@ -69,6 +95,7 @@ static void HKNet_MsgLenErr(void)
 static void HKNet_NetIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "Invalid NetIdx (");
 
@@ -77,7 +104,7 @@ static void HKNet_NetIdErr(void)
     *Ptr++     = 255;
     *Ptr       = 0;
 
-    MsgSz = SBN_CMD_NET_LEN;
+    MsgSz   = SBN_CMD_NET_LEN;
     FcnCode = SBN_HK_NET_CC;
     MSGINIT();
 
@@ -89,12 +116,13 @@ static void HKNet_NetIdErr(void)
 static void HKNet_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command, net=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = SBN_CMD_NET_LEN;
+    MsgSz   = SBN_CMD_NET_LEN;
     FcnCode = SBN_HK_NET_CC;
     MSGINIT();
 
@@ -106,12 +134,13 @@ static void HKNet_Nominal(void)
 static void HKPeer_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command, net=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_PEER_CC;
     MSGINIT();
 
@@ -123,6 +152,7 @@ static void HKPeer_MsgLenErr(void)
 static void HKPeer_NetIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "Invalid NetIdx (");
 
@@ -131,7 +161,7 @@ static void HKPeer_NetIdErr(void)
     *Ptr++     = 255;
     *Ptr       = 0;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEER_CC;
     MSGINIT();
 
@@ -143,6 +173,7 @@ static void HKPeer_NetIdErr(void)
 static void HKPeer_PeerIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "Invalid PeerIdx (");
 
@@ -151,7 +182,7 @@ static void HKPeer_PeerIdErr(void)
     *Ptr++     = 0;
     *Ptr++     = 255;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEER_CC;
     MSGINIT();
 
@@ -163,12 +194,13 @@ static void HKPeer_PeerIdErr(void)
 static void HKPeer_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command, net=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEER_CC;
     MSGINIT();
 
@@ -180,12 +212,13 @@ static void HKPeer_Nominal(void)
 static void HKPeerSubs_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk subs command, net=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_PEERSUBS_CC;
     MSGINIT();
 
@@ -197,6 +230,7 @@ static void HKPeerSubs_MsgLenErr(void)
 static void HKPeerSubs_NetIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "Invalid NetIdx (");
 
@@ -205,7 +239,7 @@ static void HKPeerSubs_NetIdErr(void)
     *Ptr++     = 255;
     *Ptr++     = 0;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEERSUBS_CC;
     MSGINIT();
 
@@ -217,6 +251,7 @@ static void HKPeerSubs_NetIdErr(void)
 static void HKPeerSubs_PeerIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "Invalid PeerIdx (");
 
@@ -225,7 +260,7 @@ static void HKPeerSubs_PeerIdErr(void)
     *Ptr++     = 0;
     *Ptr++     = 255;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEERSUBS_CC;
     MSGINIT();
 
@@ -237,6 +272,7 @@ static void HKPeerSubs_PeerIdErr(void)
 static void HKPeerSubs_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk subs command, net=");
 
@@ -244,7 +280,7 @@ static void HKPeerSubs_Nominal(void)
 
     PeerPtr->SubCnt = 1;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_PEERSUBS_CC;
     MSGINIT();
 
@@ -256,12 +292,13 @@ static void HKPeerSubs_Nominal(void)
 static void HKMySubs_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk subs command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_MYSUBS_CC;
     MSGINIT();
 
@@ -273,6 +310,7 @@ static void HKMySubs_MsgLenErr(void)
 static void HKMySubs_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk subs command");
 
@@ -280,7 +318,7 @@ static void HKMySubs_Nominal(void)
 
     SBN.SubCnt = 1;
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_HK_MYSUBS_CC;
     MSGINIT();
 
@@ -292,12 +330,13 @@ static void HKMySubs_Nominal(void)
 static void HKReset_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "reset command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_RESET_CC;
     MSGINIT();
 
@@ -309,12 +348,13 @@ static void HKReset_MsgLenErr(void)
 static void HKReset_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "reset command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_HK_RESET_CC;
     MSGINIT();
 
@@ -326,12 +366,13 @@ static void HKReset_Nominal(void)
 static void HKResetPeer_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "invalid message length (Name=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_RESET_PEER_CC;
     MSGINIT();
 
@@ -343,6 +384,7 @@ static void HKResetPeer_MsgLenErr(void)
 static void HKResetPeer_NetIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "invalid net idx ");
 
@@ -351,7 +393,7 @@ static void HKResetPeer_NetIdErr(void)
     uint8 *Ptr = Buffer + sizeof(CFE_MSG_CommandHeader_t);
     *Ptr++     = 255;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_RESET_PEER_CC;
     MSGINIT();
 
@@ -363,6 +405,7 @@ static void HKResetPeer_NetIdErr(void)
 static void HKResetPeer_PeerIdErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "invalid peer idx ");
 
@@ -372,7 +415,7 @@ static void HKResetPeer_PeerIdErr(void)
     *Ptr++     = 0;
     *Ptr++     = 255;
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_RESET_PEER_CC;
     MSGINIT();
 
@@ -384,12 +427,13 @@ static void HKResetPeer_PeerIdErr(void)
 static void HKResetPeer_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk reset peer command (NetIdx=");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = SBN_CMD_PEER_LEN;
+    MsgSz   = SBN_CMD_PEER_LEN;
     FcnCode = SBN_HK_RESET_PEER_CC;
     MSGINIT();
 
@@ -401,12 +445,13 @@ static void HKResetPeer_Nominal(void)
 static void SCH_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "wakeup");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_SCH_WAKEUP_CC;
     MSGINIT();
 
@@ -418,12 +463,13 @@ static void SCH_Nominal(void)
 static void TBL_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "reload tbl command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_TBL_CC;
     MSGINIT();
 
@@ -435,12 +481,13 @@ static void TBL_MsgLenErr(void)
 static void TBL_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "reload tbl command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_TBL_CC;
     MSGINIT();
 
@@ -452,12 +499,13 @@ static void TBL_Nominal(void)
 static void CC_Err(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "invalid command code (ID=0x");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_TBL_CC + 10;
     MSGINIT();
 
@@ -469,12 +517,13 @@ static void CC_Err(void)
 static void HK_MsgLenErr(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = -1;
+    MsgSz   = -1;
     FcnCode = SBN_HK_CC;
     MSGINIT();
 
@@ -486,17 +535,18 @@ static void HK_MsgLenErr(void)
 static void HK_MsgLenErr2(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
     FcnCode = SBN_HK_CC;
-    MsgSz = 0; /* force an invalid size, should be skipped */
+    MsgSz   = 0; /* force an invalid size, should be skipped */
     MSGINIT();
 
     CFE_MSG_Message_t *CmdPktPtr2 = (CFE_MSG_Message_t *)Buffer;
-    CFE_MSG_Size_t MsgSz2 = sizeof(CFE_MSG_CommandHeader_t);
+    CFE_MSG_Size_t     MsgSz2     = sizeof(CFE_MSG_CommandHeader_t);
 
     CFE_MSG_Init(CmdPktPtr2, MsgId, MsgSz2);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
@@ -512,12 +562,13 @@ static void HK_MsgLenErr2(void)
 static void HK_Nominal(void)
 {
     START();
+    UT_ResetState(0);
 
     UT_CheckEvent_Setup(SBN_CMD_EID, "hk command");
 
     memset(Buffer, 0, sizeof(Buffer));
 
-    MsgSz = sizeof(CFE_MSG_CommandHeader_t);
+    MsgSz   = sizeof(CFE_MSG_CommandHeader_t);
     FcnCode = SBN_HK_CC;
     MSGINIT();
 

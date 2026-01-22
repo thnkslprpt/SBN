@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 /*
 ** File: sbn_coveragetest_common.h
 **
@@ -77,7 +95,8 @@ SBN_Status_t InitNet_Nominal(SBN_NetInterface_t *Net);
 SBN_Status_t LoadNet_Nominal(SBN_NetInterface_t *Net, const char *Address);
 SBN_Status_t InitPeer_Nominal(SBN_PeerInterface_t *Peer);
 SBN_Status_t RecvFromNet_Nominal(SBN_NetInterface_t *Net, SBN_MsgType_t *MsgTypePtr, SBN_MsgSz_t *MsgSzPtr,
-                                 CFE_ProcessorID_t *ProcessorIDPtr, void *PayloadBuffer);
+                                 CFE_ProcessorID_t *ProcessorIDPtr, CFE_SpacecraftID_t *SpacecraftIDPtr,
+                                 void *PayloadBuffer);
 SBN_Status_t LoadPeer_Nominal(SBN_PeerInterface_t *Peer, const char *Address);
 SBN_Status_t UnloadNet_Nominal(SBN_NetInterface_t *Net);
 SBN_Status_t UnloadPeer_Nominal(SBN_PeerInterface_t *Net);
@@ -86,13 +105,13 @@ SBN_Status_t Send_Nominal(SBN_PeerInterface_t *Peer, SBN_MsgType_t MsgType, SBN_
 SBN_Status_t Send_Err(SBN_PeerInterface_t *Peer, SBN_MsgType_t MsgType, SBN_MsgSz_t MsgSz, void *Payload);
 SBN_Status_t FilterInitModule_Nominal(int FilterVersion, CFE_EVS_EventID_t BaseEID);
 
-extern SBN_IfOps_t *          IfOpsPtr;
+extern SBN_IfOps_t           *IfOpsPtr;
 extern SBN_FilterInterface_t *FilterInterfacePtr;
-extern SBN_ConfTbl_t *        NominalTblPtr;
+extern SBN_ConfTbl_t         *NominalTblPtr;
 extern CFE_ProcessorID_t      ProcessorID;
 extern CFE_SpacecraftID_t     SpacecraftID;
-extern SBN_NetInterface_t *   NetPtr;
-extern SBN_PeerInterface_t *  PeerPtr;
+extern SBN_NetInterface_t    *NetPtr;
+extern SBN_PeerInterface_t   *PeerPtr;
 
 #define START() START_fn(__func__, __LINE__)
 void START_fn(const char *func, int line);

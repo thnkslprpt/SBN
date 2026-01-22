@@ -23,7 +23,7 @@
 **
 ** Purpose:
 **   This header file contains the platform configuration parameters.
-** 
+**
 ** Notes:
 **   The impact of changing these configurations from their default value is
 **   not yet documented.  Changing these values may impact the performance
@@ -44,12 +44,12 @@
 /*
 ** CPU Id for target Processor
 */
-#define CFE_PLATFORM_CPU_ID 1
+#define CFE_PLATFORM_CPU_ID 3
 
 /*
 ** CPU Name for target Processor
 */
-#define CFE_PLATFORM_CPU_NAME "CPU1"
+#define CFE_PLATFORM_CPU_NAME "CPU3"
 
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
@@ -168,12 +168,12 @@
 **       fast access into the routing table. The default setting of 0x1FFF was chosen
 **       to save memory. This reduces the message map from 128Kbytes to 16Kbytes.
 **       See CFE_FSW_DCR 504 for more details.
-**     
+**
 **       If this value is different in a distributed architecture some platforms may not
 **       be able to subscribe to messages generated on other platforms since the message id
-**       would exceed the mapping table's highest index. Care would have to be taken to ensure the 
-**       constrained platform did not subscribe to message Ids that exceed 
-**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID 
+**       would exceed the mapping table's highest index. Care would have to be taken to ensure the
+**       constrained platform did not subscribe to message Ids that exceed
+**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
 **
 **       The recommended case to to have this value the same across all mission platforms
 **
@@ -295,7 +295,7 @@
 **  \par Limits
 **       These sizes MUST be increasing and MUST be an integral multiple of 4.
 **       The number of block sizes defined cannot exceed
-**       #CFE_ES_MAX_MEMPOOL_BLOCK_SIZES
+**       #CFE_PLATFORM_ES_POOL_MAX_BUCKETS
 */
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01              8
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_02             16
@@ -905,12 +905,12 @@
 **  \cfeescfg Define OS Task Delay Value for ES Shell Command
 **
 **  \par Description:
-**       This parameter defines the length of time (in milliseconds) ES will 
-**       delay when sending shell command packets over the software bus to not 
+**       This parameter defines the length of time (in milliseconds) ES will
+**       delay when sending shell command packets over the software bus to not
 **       flood the pipe on large messages.
-** 
-**       Note: The milliseconds passed into OS_TaskDelay are converted into the 
-**       units the underlying OS uses to measure time passing.  Many platforms 
+**
+**       Note: The milliseconds passed into OS_TaskDelay are converted into the
+**       units the underlying OS uses to measure time passing.  Many platforms
 **       limit the precision of this value however, a delay may not be
 **       needed at all in which the value may be set to zero.
 **
@@ -1080,7 +1080,7 @@
 **
 **  \par Description:
 **       Defines the filter mask for disabling all performance entries. The value is a
-**       bit mask.  For each bit, 0 means the corresponding entry is disabled and 
+**       bit mask.  For each bit, 0 means the corresponding entry is disabled and
 **       1 means it is enabled.
 */
 #define CFE_PLATFORM_ES_PERF_FILTMASK_NONE              0
@@ -1090,7 +1090,7 @@
 **
 **  \par Description:
 **       Defines the filter mask for enabling all performance entries. The value is a
-**       bit mask.  For each bit, 0 means the corresponding entry is disabled and 
+**       bit mask.  For each bit, 0 means the corresponding entry is disabled and
 **       1 means it is enabled.
 */
 #define CFE_PLATFORM_ES_PERF_FILTMASK_ALL               ~CFE_PLATFORM_ES_PERF_FILTMASK_NONE
@@ -1100,7 +1100,7 @@
 **
 **  \par Description:
 **       Defines the default filter mask for the performance data buffer. The value is a
-**       bit mask.  For each bit, 0 means the corresponding entry is disabled and 1 
+**       bit mask.  For each bit, 0 means the corresponding entry is disabled and 1
 **       means it is enabled.
 **
 */
@@ -1111,8 +1111,8 @@
 **  \cfeescfg Define Default Filter Trigger Setting for Disabling All Performance Entries
 **
 **  \par Description:
-**       Defines the default trigger mask for disabling all performance data entries. The value 
-**       is a bit mask.  For each bit, 0 means the trigger for the corresponding entry is 
+**       Defines the default trigger mask for disabling all performance data entries. The value
+**       is a bit mask.  For each bit, 0 means the trigger for the corresponding entry is
 **       disabled and 1 means it is enabled.
 **
 */
@@ -1122,8 +1122,8 @@
 **  \cfeescfg Define Filter Trigger Setting for Enabling All Performance Entries
 **
 **  \par Description:
-**       Defines the trigger mask for enabling all performance data entries. The value is 
-**       a bit mask.  For each bit, 0 means the trigger for the corresponding entry is 
+**       Defines the trigger mask for enabling all performance data entries. The value is
+**       a bit mask.  For each bit, 0 means the trigger for the corresponding entry is
 **       disabled and 1 means it is enabled.
 **
 */
@@ -1134,7 +1134,7 @@
 **
 **  \par Description:
 **       Defines the default trigger mask for the performance data buffer. The value is a
-**       32-bit mask.  For each bit, 0 means the trigger for the corresponding entry is 
+**       32-bit mask.  For each bit, 0 means the trigger for the corresponding entry is
 **       disabled and 1 means it is enabled.
 **
 */
@@ -1145,9 +1145,9 @@
 **
 **  \par Description:
 **       This parameter defines the priority of the child task spawed by the
-**       Executive Services to write performance data to a file.  Lower numbers 
-**       are higher priority, with 1 being the highest priority in the case of a 
-**       child task. 
+**       Executive Services to write performance data to a file.  Lower numbers
+**       are higher priority, with 1 being the highest priority in the case of a
+**       child task.
 **
 **  \par Limits
 **       Valid range for a child task is 1 to 255 however, the priority cannot
@@ -1160,7 +1160,7 @@
 **
 **  \par Description:
 **       This parameter defines the stack size of the child task spawed by the
-**       Executive Services to write performance data to a file.  
+**       Executive Services to write performance data to a file.
 **
 **  \par Limits
 **       It is recommended this parameter be greater than or equal to 4KB. This parameter
@@ -1175,7 +1175,7 @@
 **  \par Description:
 **       This parameter defines the delay time (in milliseconds) between performance
 **       data file writes performed by the Executive Services Performace Analyzer
-**       Child Task.   
+**       Child Task.
 **
 **  \par Limits
 **       It is recommended this parameter be greater than or equal to 20ms. This parameter
@@ -1188,8 +1188,8 @@
 **  \cfeescfg Define Performance Analyzer Child Task Number of Entries Between Delay
 **
 **  \par Description:
-**       This parameter defines the number of performace analyzer entries the Performace 
-**       Analyzer Child Task will write to the file between delays.  
+**       This parameter defines the number of performace analyzer entries the Performace
+**       Analyzer Child Task will write to the file between delays.
 **
 */
 #define CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS             50
