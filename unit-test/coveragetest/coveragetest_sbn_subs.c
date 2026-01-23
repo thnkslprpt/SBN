@@ -1,8 +1,26 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_coveragetest_common.h"
 #include "cfe_msgids.h"
 #include "sbn_pack.h"
 
-CFE_SB_MsgId_t MsgID = 0xDEAD;
+CFE_SB_MsgId_t MsgID = {.Value = 0xDEAD};
 
 static void SendSubsRequests_SendMsg1Err(void)
 {
@@ -67,10 +85,10 @@ static void CSP_PLS_MaxSubsErr(void)
     MsgPtr = &Msg;
     memset(MsgPtr, 0, sizeof(Msg));
     Msg.Payload.SubType = CFE_SB_SUBSCRIPTION;
-    Msg.Payload.MsgId   = CFE_SB_ONESUB_TLM_MID;
+    Msg.Payload.MsgId   = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_ERROR);
@@ -93,7 +111,7 @@ static void CSP_PLS_AddlSubs(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -114,7 +132,7 @@ static void CSP_PLS_SendErr(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_ERROR);
@@ -134,10 +152,10 @@ static void CSP_PLS_EvtMsg(void)
     MsgPtr = &Msg;
     memset(MsgPtr, 0, sizeof(Msg));
     Msg.Payload.SubType = CFE_SB_SUBSCRIPTION;
-    Msg.Payload.MsgId   = CFE_EVS_LONG_EVENT_MSG_MID;
+    Msg.Payload.MsgId   = CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID);
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -157,10 +175,10 @@ static void CSP_PLS_SbnMsg(void)
     MsgPtr = &Msg;
     memset(MsgPtr, 0, sizeof(Msg));
     Msg.Payload.SubType = CFE_SB_SUBSCRIPTION;
-    Msg.Payload.MsgId   = SBN_CMD_MID;
+    Msg.Payload.MsgId   = CFE_SB_ValueToMsgId(SBN_CMD_MID);
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -179,7 +197,7 @@ static void CSP_PLU_NotSub(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -200,7 +218,7 @@ static void CSP_PLU_OtherSub(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -224,7 +242,7 @@ static void CSP_PLU_SLS2PErr(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     IfOpsPtr->Send = Send_Err;
@@ -249,7 +267,7 @@ static void CSP_PLU_Nominal(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);
@@ -271,7 +289,7 @@ static void CSP_SubTypeErr(void)
     Msg.Payload.MsgId   = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ONESUB_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_ERROR);
@@ -291,10 +309,10 @@ static void CSP_AllSubs_EntryCntErr(void)
     CFE_SB_AllSubscriptionsTlm_t Msg, *MsgPtr;
     MsgPtr = &Msg;
     memset(MsgPtr, 0, sizeof(Msg));
-    Msg.Payload.Entries = CFE_SB_SUB_ENTRIES_PER_PKT + 1;
+    Msg.Payload.Entries = CFE_MISSION_SB_SUB_ENTRIES_PER_PKT + 1;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ALLSUBS_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_ERROR);
@@ -321,7 +339,7 @@ static void CSP_AllSubs_PLSErr(void)
     Msg.Payload.Entry[0].MsgId = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ALLSUBS_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_ERROR);
@@ -340,7 +358,7 @@ static void CSP_AllSubs_Nominal(void)
     Msg.Payload.Entry[0].MsgId = MsgID;
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &MsgPtr, sizeof(MsgPtr), false);
 
-    CFE_SB_MsgId_t mid = CFE_SB_ALLSUBS_TLM_MID;
+    CFE_SB_MsgId_t mid = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &mid, sizeof(mid), false);
 
     UtAssert_INT32_EQ(SBN_CheckSubscriptionPipe(), SBN_SUCCESS);

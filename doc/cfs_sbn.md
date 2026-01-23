@@ -45,7 +45,7 @@ table-configured.)
 
 SBN Build and Configuration
 ---------------------------
-SBN is built like any other cFS application, either via specifying it in 
+SBN is built like any other cFS application, either via specifying it in
 the the `TGT#_APPLISTS` parameter in the targets.cmake. Protocol modules
 (`sbn_udp`, `sbn_tcp`, `sbn_dtn`, ...) must also be specified as an
 application in the build process and loaded by ES after the core SBN
@@ -102,19 +102,16 @@ SBN Control Commands
 SBN has a number of commands for managing the SBN application's configuration
 and for requesting housekeeping telemetry.
 
-Macro               |CC    |Command Description                      |Parameters
---------------------|------|-----------------------------------------|------
-`SBN_NOOP_CC`       |`0x00`|Do nothing beyond reporting an event.      |<none>
-`SBN_RESET_CC`      |`0x01`|Resets the SBN network.                    |<none>
-`SBN_RESET_PEER_CC` |`0x02`|Resets a connection to a particular peer.  |`uint8 NetIdx, uint8 PeerIdx`
-`SBN_REMAPCFG_CC`   |`0x05`|Sets the remapping configuration.          |`uint8 Enabled, uint8 RemapDefaultFlag`
-`SBN_REMAPADD_CC`   |`0x06`|Adds a remapping.                          |`uint32 ProcessorID, CFE_SB_MsgId_t FromMID, CFE_SB_MsgId_t ToMID`
-`SBN_REMAPDEL_CC`   |`0x07`|Removes a remapping.                       |`uint32 ProcessorID, CFE_SB_MsgId_t FromMID`
-`SBN_HK_CC`         |`0x0A`|Requests main housekeeping telemetry.      |<none>
-`SBN_HK_NET_CC`     |`0x0B`|Requests housekeeping telemetry for a net. |`uint8 NetIdx`
-`SBN_HK_PEER_CC`    |`0x0C`|Requests housekeeping telemetry for a peer.|`uint8 NetIdx, uint8 PeerIdx`
-`SBN_HK_PEERSUBS_CC`|`0x0D`|Requests hk telemetry for a peer's subs.   |`uint8 NetIdx, uint8 PeerIdx`
-`SBN_HK_MYSUBS_CC`  |`0x0E`|Requests hk telemetry for my subs.         |<none>
+Macro                  |CC    |Command Description                      |Parameters
+-----------------------|------|-----------------------------------------|------
+`SBN_NOOP_CC`          |`0x00`|Do nothing beyond reporting an event.      | _None_
+`SBN_HK_RESET_CC`      |`0x01`|Resets the SBN network.                    | _None_
+`SBN_HK_RESET_PEER_CC` |`0x02`|Resets a connection to a particular peer.  |`uint8 NetIdx, uint8 PeerIdx`
+`SBN_HK_CC`            |`0x0A`|Requests main housekeeping telemetry.      | _None_
+`SBN_HK_NET_CC`        |`0x0B`|Requests housekeeping telemetry for a net. |`uint8 NetIdx`
+`SBN_HK_PEER_CC`       |`0x0C`|Requests housekeeping telemetry for a peer.|`uint8 NetIdx, uint8 PeerIdx`
+`SBN_HK_PEERSUBS_CC`   |`0x0D`|Requests hk telemetry for a peer's subs.   |`uint8 NetIdx, uint8 PeerIdx`
+`SBN_HK_MYSUBS_CC`     |`0x0E`|Requests hk telemetry for my subs.         | _None_
 
 SBN Housekeeping Telemetry
 --------------------------

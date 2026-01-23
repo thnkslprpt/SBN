@@ -1,23 +1,20 @@
-/******************************************************************************
- ** \file sbn_subs.c
- **
- **      Copyright (c) 2004-2006, United States government as represented by the
- **      administrator of the National Aeronautics Space Administration.
- **      All rights reserved. This software(cFE) was created at NASA's Goddard
- **      Space Flight Center pursuant to government contracts.
- **
- **      This software may be used only pursuant to a United States government
- **      sponsored project and the United States government may not be charged
- **      for use thereof.
- **
- ** Purpose:
- **      This file contains source code for the Software Bus Network Application.
- **
- ** Authors:   J. Wilmot/GSFC Code582
- **            R. McGraw/SSI
- **            E. Timmons/GSFC Code587
- **            C. Knight/ARC Code TI
- */
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 #include "sbn_app.h"
 #include <string.h>
@@ -177,7 +174,11 @@ static SBN_Status_t ProcessLocalSub(CFE_SB_MsgId_t MsgID, CFE_SB_Qos_t QoS)
 
     /* don't send SBN messages */
     if (CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_CMD_MID))
-            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_TLM_MID)))
+            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_HK_TLM_MID))
+            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_HKNET_TLM_MID))
+            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_HKPEER_TLM_MID))
+            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_HKMYSUBS_TLM_MID))
+            || CFE_SB_MsgId_Equal(MsgID, CFE_SB_ValueToMsgId(SBN_HKPEERSUBS_TLM_MID)))
         return SBN_SUCCESS;
 
     int SubIdx = 0;
@@ -231,7 +232,6 @@ static SBN_Status_t ProcessLocalSub(CFE_SB_MsgId_t MsgID, CFE_SB_Qos_t QoS)
  * last instance of a subscription for this message ID.
  *
  * @param[in] MsgID The CCSDS Message ID of the local unsubscription.
- * @param[in] QoS The CCSDS quality of service of the local unsubscription.
  */
 static SBN_Status_t ProcessLocalUnsub(CFE_SB_MsgId_t MsgID)
 {
@@ -438,7 +438,7 @@ static SBN_Status_t ProcessSubFromPeer(SBN_PeerInterface_t *Peer, CFE_SB_MsgId_t
 /**
  * \brief Process a subscription message from a peer.
  *
- * @param[in] PeerIdx The peer index (in SBN.Peer)
+ * @param[in] Peer The peer interface
  * @param[in] Msg The subscription SBN message.
  *
  * @return SBN_SUCCESS on successfully handling all subscriptions from peer, otherwise SBN_ERROR
@@ -553,7 +553,7 @@ static SBN_Status_t ProcessUnsubFromPeer(SBN_PeerInterface_t *Peer, CFE_SB_MsgId
 /**
  * \brief Process an unsubscription message from a peer.
  *
- * @param[in] PeerIdx The peer index (in SBN.Peer)
+ * @param[in] Peer The peer interface
  * @param[in] Msg The unsubscription SBN message.
  *
  * @return SBN_SUCCESS always (whether or not there were some unsubs that failed.)
@@ -603,10 +603,10 @@ SBN_Status_t SBN_ProcessAllSubscriptions(CFE_SB_AllSubscriptionsTlm_t *Ptr)
     SBN_Status_t SBN_Status = SBN_SUCCESS;
     int          i          = 0;
 
-    if (Ptr->Payload.Entries > CFE_SB_SUB_ENTRIES_PER_PKT)
+    if (Ptr->Payload.Entries > CFE_MISSION_SB_SUB_ENTRIES_PER_PKT)
     {
         EVSSendErr(SBN_SUB_EID, "entries value %d in SB PrevSubMsg exceeds max %d, aborting", (int)Ptr->Payload.Entries,
-                   CFE_SB_SUB_ENTRIES_PER_PKT);
+                   CFE_MISSION_SB_SUB_ENTRIES_PER_PKT);
         return SBN_ERROR;
     } /* end if */
 
@@ -629,7 +629,7 @@ SBN_Status_t SBN_ProcessAllSubscriptions(CFE_SB_AllSubscriptionsTlm_t *Ptr)
  * Removes all subscriptions (unsubscribe from the local SB )
  * for the specified peer, particularly when the peer connection has been lost.
  *
- * @param[in] PeerIdx The peer index (into SBN.Peer) to clear.
+ * @param[in] Peer The peer interface
  *
  * @return SBN_SUCCESS always (whether or not there were some unsubs that failed.)
  */

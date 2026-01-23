@@ -9,4 +9,4 @@ The cFS is a platform and project independent reusable software framework and se
 The SBN application connects the cFE Software Bus (SB) to other buses, bridging the publish/subscribe messaging service to separate cFS instances in separate partitions, processes, processors, and/or networks.
 
 ## License
-This software is licensed under the NASA Open Source Agreement. http://ti.arc.nasa.gov/opensource/nosa
+This software is licensed under the [NASA Open Source Agreement](Core%20Flight%20System%20(CFS)%20NOSA%20GSC-16917-1.pdf).

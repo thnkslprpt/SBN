@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_interfaces.h"
 #include "sbn_remap_tbl.h"
 #include "sbn_msgids.h"
@@ -11,7 +29,7 @@
 const char SBN_F_REMAP_TABLE_NAME[] = "SBN_RemapTbl";
 
 bool             RemapInitialized = false;
-OS_MutexID_t     RemapMutex  = 0;
+OS_MutexID_t     RemapMutex;
 CFE_TBL_Handle_t RemapTblHandle = 0;
 SBN_RemapTbl_t   *RemapTbl    = NULL;
 int              RemapTblCnt = 0;
@@ -260,13 +278,13 @@ static SBN_Status_t Deinit(CFE_EVS_EventID_t BaseEID)
         return SBN_ERROR;
     } /* end if */
 
-    if (RemapMutex != 0)
+    if (OS_ObjectIdDefined(RemapMutex))
     {
         if(OS_MutSemDelete(RemapMutex) != OS_SUCCESS) {
             EVSSendErr(BaseEID, "unable to delete mutex");
             return SBN_ERROR;
         }
-        RemapMutex = 0;
+        RemapMutex = OS_OBJECT_ID_UNDEFINED;
     }
 
     RemapInitialized = false;
@@ -280,6 +298,8 @@ static SBN_Status_t Init(int Version, CFE_EVS_EventID_t BaseEID)
     OS_Status_t OS_Status;
     CFE_Status_t CFE_Status;
 
+    RemapMutex = OS_OBJECT_ID_UNDEFINED;
+
     SBN_F_REMAP_FIRST_EID = BaseEID;
 
     if (Version != 2) /* TODO: define */
@@ -289,7 +309,8 @@ static SBN_Status_t Init(int Version, CFE_EVS_EventID_t BaseEID)
     } /* end if */
 
     /* get task name to retrieve table after loading */
-    uint32 TskId = OS_TaskGetId();
+    CFE_ES_TaskId_t TskId;
+    CFE_ES_GetTaskID(&TskId);
     if ((CFE_Status = CFE_ES_GetTaskInfo(&TaskInfo, TskId)) != CFE_SUCCESS)
     {
         EVSSendErr(BaseEID, "SBN failed to get task info (%d)", (int)CFE_Status);

@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_coveragetest_common.h"
 
 int32 UT_CheckEvent_Hook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context,
@@ -6,7 +24,7 @@ int32 UT_CheckEvent_Hook(void *UserObj, int32 StubRetcode, uint32 CallCount, con
     UT_CheckEvent_t *State = UserObj;
     char             TestText[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
     uint16           EventId;
-    const char *     Spec;
+    const char      *Spec;
 
     /*
      * The CFE_EVS_SendEvent stub passes the EventID as the
@@ -82,7 +100,8 @@ SBN_Status_t InitPeer_Nominal(SBN_PeerInterface_t *Peer)
 } /* end InitPeer_Nominal() */
 
 SBN_Status_t RecvFromNet_Nominal(SBN_NetInterface_t *Net, SBN_MsgType_t *MsgTypePtr, SBN_MsgSz_t *MsgSzPtr,
-                                 CFE_ProcessorID_t *ProcessorIDPtr, void *PayloadBuffer)
+                                 CFE_ProcessorID_t *ProcessorIDPtr, CFE_SpacecraftID_t *SpacecraftIDPtr,
+                                 void *PayloadBuffer)
 {
     *ProcessorIDPtr = 1235;
 
@@ -153,9 +172,9 @@ SBN_ConfTbl_t NominalTbl = {.ProtocolModules = {{.Name        = "UDP",
                                                  .BaseEID     = 0x0100}},
                             .ProtocolCnt     = 1,
                             .FilterModules   = {{.Name        = "CCSDS Endian",
-                                               .LibFileName = "/cf/sbn_f_ccsds_end.so",
-                                               .LibSymbol   = "SBN_F_CCSDS_End",
-                                               .BaseEID     = 0x1000}},
+                                                 .LibFileName = "/cf/sbn_f_ccsds_end.so",
+                                                 .LibSymbol   = "SBN_F_CCSDS_End",
+                                                 .BaseEID     = 0x1000}},
                             .FilterCnt       = 1,
 
                             .Peers =
@@ -184,7 +203,7 @@ SBN_ConfTbl_t *NominalTblPtr = &NominalTbl;
 /********************************** globals ************************************/
 CFE_ProcessorID_t    ProcessorID  = 1234;
 CFE_SpacecraftID_t   SpacecraftID = 5678;
-SBN_NetInterface_t * NetPtr       = NULL;
+SBN_NetInterface_t  *NetPtr       = NULL;
 SBN_PeerInterface_t *PeerPtr      = NULL;
 
 /* SBN tries to look up the symbol of the protocol or filter module using OS_SymbolLookup, if it
@@ -195,7 +214,7 @@ SBN_PeerInterface_t *PeerPtr      = NULL;
 int32 SymLookHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     static char LastSeen[32] = {0};
-    char *      SymbolName   = (char *)Context->ArgPtr[1];
+    char       *SymbolName   = (char *)Context->ArgPtr[1];
 
     /* this forces the LoadConf_Module() function to call ModuleLoad */
 

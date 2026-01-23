@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_dtn_if_struct.h"
 #include "sbn_dtn_if.h"
 #include "sbn_dtn_events.h"
@@ -38,7 +56,7 @@ int SBN_DTN_LoadPeer(SBN_PeerInterface_t *Peer, const char *Address)
 /**
  * Initializes a DTN host.
  *
- * @param  Interface data structure containing the file entry
+ * @param  Net Network interface information for the peer
  * @return SBN_SUCCESS on success, error code otherwise
  */
 int SBN_DTN_InitNet(SBN_NetInterface_t *Net)
@@ -73,7 +91,7 @@ int SBN_DTN_InitNet(SBN_NetInterface_t *Net)
  * Initializes DTN peer data struct depending on the
  * CPU name.
  *
- * @param  Interface data structure containing the file entry
+ * @param  Peer Data structure containing the peer information
  * @return SBN_SUCCESS on success, error code otherwise
  */
 int SBN_DTN_InitPeer(SBN_PeerInterface_t *Peer)

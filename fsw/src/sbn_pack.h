@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #ifndef _sbn_pack_h_
 #define _sbn_pack_h_
 
@@ -27,7 +45,6 @@
  */
 
 #include <stdlib.h> /* size_t */
-#include "osconfig.h"
 #include "cfe.h"
 #include "cfe_endian.h"
 
@@ -40,10 +57,10 @@ typedef struct
 /**
  * Initialize the packing management structure.
  *
- * @param PackPtr[in/out] The pointer to the management structure to initialize.
- * @param Buf[in] The buffer for storing packed data.
- * @param BufSz[in] The size of the buffer.
- * @param ClearFlag[in] If true, zero the buffer.
+ * @param[in,out] PackPtr The pointer to the management structure to initialize.
+ * @param[in] Buf The buffer for storing packed data.
+ * @param[in] BufSz The size of the buffer.
+ * @param[in] ClearFlag If true, zero the buffer.
  *
  * @return true if the initialization succeeded.
  *
@@ -56,9 +73,9 @@ bool Pack_Init(Pack_t *PackPtr, void *Buf, size_t BufSz, bool ClearFlag);
  * Pack data into the buffer. This does the grunt-work of managing the buffer,
  * and has no idea what the data contains.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[in] The buffer to pack into the buffer.
- * @param DataBufSz[in] The size of the data buffer.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] DataBuf The buffer to pack into the buffer.
+ * @param[in] DataBufSz The size of the data buffer.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -70,8 +87,8 @@ bool Pack_Data(Pack_t *PackPtr, void *DataBuf, size_t DataBufSz);
 /**
  * Pack an unsigned 8-bit integer into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -83,8 +100,8 @@ bool Pack_UInt8(Pack_t *PackPtr, uint8 Data);
 /**
  * Pack an unsigned 16-bit integer into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -96,8 +113,8 @@ bool Pack_UInt16(Pack_t *PackPtr, uint16 Data);
 /**
  * Pack a signed 16-bit integer into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -109,8 +126,8 @@ bool Pack_Int16(Pack_t *PackPtr, int16 Data);
 /**
  * Pack an unsigned 32-bit integer into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -122,8 +139,8 @@ bool Pack_UInt32(Pack_t *PackPtr, uint32 Data);
 /**
  * Pack a time datum into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -135,8 +152,8 @@ bool Pack_Time(Pack_t *PackPtr, OS_time_t Data);
 /**
  * Pack a CFE Software Bus message identifier into the buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param Data[in] The value to pack.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[in] Data The value to pack.
  *
  * @return true if the data was successfully packed into the buffer, false if
  *         it failed (likely due to running out of available space in the buffer.)
@@ -149,9 +166,9 @@ bool Pack_MsgID(Pack_t *PackPtr, CFE_SB_MsgId_t Data);
  * Unpacks data from the existing packed buffer. This does the grunt-work of managing the buffer,
  * and has no idea what the data contains.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The buffer to pack from the buffer.
- * @param DataBufSz[in] The number of bytes to read from the buffer into DataBuf.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The buffer to pack from the buffer.
+ * @param[in] Sz The number of bytes to read from the buffer into DataBuf.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)
@@ -163,8 +180,8 @@ bool Unpack_Data(Pack_t *PackPtr, void *DataBuf, size_t Sz);
 /**
  * Unpack an unsigned 8-bit integer from the pack buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The pointer to where the data should be stored.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)
@@ -176,8 +193,8 @@ bool Unpack_UInt8(Pack_t *PackPtr, uint8 *DataBuf);
 /**
  * Unpack an unsigned 16-bit integer from the pack buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The pointer to where the data should be stored.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)
@@ -189,8 +206,8 @@ bool Unpack_UInt16(Pack_t *PackPtr, uint16 *DataBuf);
 /**
  * Unpack a signed 16-bit integer from the pack buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The pointer to where the data should be stored.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)
@@ -202,8 +219,8 @@ bool Unpack_Int16(Pack_t *PackPtr, int16 *DataBuf);
 /**
  * Unpack an unsigned 32-bit integer from the pack buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The pointer to where the data should be stored.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)
@@ -213,10 +230,23 @@ bool Unpack_Int16(Pack_t *PackPtr, int16 *DataBuf);
 bool Unpack_UInt32(Pack_t *PackPtr, uint32 *DataBuf);
 
 /**
+ * Unpack a time datum from the buffer.
+ *
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
+ *
+ * @return true if the data was successfully read from the buffer, false if
+ *         it failed (likely due to no more data in the buffer.)
+ *
+ * @sa #Unpack_Data
+ */
+bool Unpack_Time(Pack_t *PackPtr, OS_time_t *DataBuf);
+
+/**
  * Unpack a CFE software bus message identifier from the pack buffer.
  *
- * @param PackPtr[in/out] The pointer to the management structure.
- * @param DataBuf[out] The pointer to where the data should be stored.
+ * @param[in,out] PackPtr The pointer to the management structure.
+ * @param[out] DataBuf The pointer to where the data should be stored.
  *
  * @return true if the data was successfully read from the buffer, false if
  *         it failed (likely due to no more data in the buffer.)

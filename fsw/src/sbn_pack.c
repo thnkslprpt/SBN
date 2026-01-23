@@ -1,3 +1,21 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
 #include "sbn_pack.h"
 #include <string.h> /* memcpy */
 
@@ -52,11 +70,7 @@ bool Pack_UInt32(Pack_t *PackPtr, uint32 Data)
 
 bool Pack_Time(Pack_t *PackPtr, OS_time_t Data)
 {
-    OS_time_t D;
-    OS_TimeAssembleFromMicroseconds(
-        CFE_MAKE_BIG32(OS_TimeGetTotalSeconds(Data)),
-        CFE_MAKE_BIG32(OS_TimeGetMicrosecondsPart(Data)));
-    return Pack_Data(PackPtr, &D, sizeof(D));
+    return Pack_Data(PackPtr, &Data, sizeof(Data));
 } /* end Pack_Time() */
 
 bool Pack_MsgID(Pack_t *PackPtr, CFE_SB_MsgId_t Data)
@@ -117,6 +131,17 @@ bool Unpack_UInt32(Pack_t *Pack, uint32 *DataBuf)
     *DataBuf = CFE_MAKE_BIG32(D);
     return true;
 } /* end Unpack_UInt32() */
+
+bool Unpack_Time(Pack_t *Pack, OS_time_t *DataBuf)
+{
+    OS_time_t D;
+    if (!Unpack_Data(Pack, &D, sizeof(D)))
+    {
+        return false;
+    }
+    *DataBuf = D;
+    return true;
+} /* end Unpack_Time() */
 
 bool Unpack_MsgID(Pack_t *Pack, CFE_SB_MsgId_t *DataBuf)
 {
